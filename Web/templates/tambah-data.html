@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Asset IT - Griya Persada</title>
+    <style>
+        /* --- WARNA BRAND --- */
+        :root {
+            --gp-green: #2A6546;
+            --gp-orange: #E77937;
+            --gp-black: #1A1917;
+            --gp-accent: #5E5E55;
+            --bg-body: #F0F4F2;
+            --white: #FFFFFF;
+        }
+
+        /* --- RESET DASAR --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--gp-black);
+        }
+
+        /* --- NAVIGASI ATAS --- */
+        .top-navbar {
+            background-color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: var(--gp-green);
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+        .btn-back:hover { color: var(--gp-orange); }
+
+        /* --- AREA FORM --- */
+        .main-content {
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .form-card {
+            background: var(--white);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background-color: var(--gp-green);
+            color: var(--white);
+            padding: 20px 30px;
+            text-align: center;
+        }
+
+        .form-header h2 { margin: 0; font-size: 20px; letter-spacing: 1px; text-transform: uppercase; }
+        .form-header p { margin: 5px 0 0 0; font-size: 13px; opacity: 0.8; }
+
+        .form-body { padding: 30px; }
+
+        /* --- GRID LAYOUT --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width { grid-column: span 2; }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gp-accent);
+            text-transform: uppercase;
+        }
+
+        .form-label span { color: #e74c3c; } /* Tanda Bintang Merah */
+
+        /* --- INPUT STYLES --- */
+        .form-control {
+            padding: 12px 15px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--gp-black);
+            transition: all 0.3s ease;
+            background-color: #F8FAF9;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--gp-green);
+            background-color: var(--white);
+            box-shadow: 0 0 0 3px rgba(42, 101, 70, 0.1);
+        }
+
+        textarea.form-control { resize: vertical; min-height: 100px; }
+
+        /* --- TOMBOL --- */
+        .form-footer {
+            padding: 20px 30px 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            background: #FAFAFA;
+            border-top: 1px solid #F1F5F9;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            border: none;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-reset {
+            background: transparent;
+            color: var(--gp-accent);
+            border: 2px solid #CBD5E1;
+        }
+        .btn-reset:hover { background: #F1F5F9; color: var(--gp-black); }
+
+        .btn-submit {
+            background: var(--gp-green);
+            color: var(--white);
+            box-shadow: 0 4px 10px rgba(42, 101, 70, 0.2);
+        }
+        .btn-submit:hover {
+            background: #1f4c34;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(42, 101, 70, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-navbar">
+        <a href="/" class="btn-back">← KEMBALI KE DASHBOARD</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Tambah Data Asset IT</h2>
+                <p>Masukkan rincian barang inventaris baru ke dalam database</p>
+            </div>
+            
+            <!-- Form mengarah ke rute /simpan-data di Flask (Metode POST) -->
+            <form action="/simpan-data" method="POST" class="form-body">
+                <div class="form-grid">
+                    
+                    <!-- Nama Produk (Wajib) -->
+                    <div class="form-group full-width">
+                        <label class="form-label">Nama Asset / Produk <span>*</span></label>
+                        <input type="text" name="product_name" class="form-control" placeholder="Contoh: Laptop Lenovo Thinkpad T14" required>
+                    </div>
+
+                    <!-- Barcode -->
+                    <div class="form-group">
+                        <label class="form-label">Barcode / ID Unik</label>
+                        <input type="text" name="barcode" class="form-control" placeholder="Contoh: IT-LP-001">
+                    </div>
+
+                    <!-- Serial Number -->
+                    <div class="form-group">
+                        <label class="form-label">Serial Number</label>
+                        <input type="text" name="serial_number" class="form-control" placeholder="S/N dari pabrik">
+                    </div>
+
+                    <!-- Model & Manufacturer -->
+                    <div class="form-group">
+                        <label class="form-label">Model / Tipe</label>
+                        <input type="text" name="model" class="form-control" placeholder="Contoh: T14 Gen 2">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Pabrikan / Merk</label>
+                        <input type="text" name="manufacturer" class="form-control" placeholder="Contoh: Lenovo">
+                    </div>
+
+                    <!-- Dropdowns (Data diambil dari relasi Database via Jinja2) -->
+                    <div class="form-group">
+                        <label class="form-label">Kategori <span>*</span></label>
+                        <select name="category_id" class="form-control" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.category_id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Kondisi / Status <span>*</span></label>
+                        <select name="status_id" class="form-control" required>
+                            <option value="">-- Pilih Status --</option>
+                            {% for stat in statuses %}
+                                <option value="{{ stat.status_id }}">{{ stat.status_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Lokasi Penempatan <span>*</span></label>
+                        <select name="location_id" class="form-control" required>
+                            <option value="">-- Pilih Lokasi --</option>
+                            {% for loc in locations %}
+                                <option value="{{ loc.location_id }}">{{ loc.site_name }} - {{ loc.room_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Supplier / Vendor</label>
+                        <select name="supplier_id" class="form-control">
+                            <option value="">-- Pilih Supplier --</option>
+                            {% for sup in suppliers %}
+                                <option value="{{ sup.supplier_id }}">{{ sup.company_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Data Pembelian -->
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Pembelian</label>
+                        <input type="date" name="purchase_date" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Harga Beli (Rp)</label>
+                        <input type="number" name="purchase_cost" class="form-control" placeholder="Contoh: 15000000" step="0.01">
+                    </div>
+
+                    <!-- Spesifikasi (JSONB text / Keterangan) -->
+                    <div class="form-group full-width">
+                        <label class="form-label">Spesifikasi Teknis / Keterangan Tambahan (Format JSON/Teks)</label>
+                        <textarea name="specs" class="form-control" placeholder='Contoh: {"RAM": "16GB", "Storage": "512GB SSD"}'></textarea>
+                    </div>
+
+                </div>
+
+                <div class="form-footer">
+                    <button type="reset" class="btn btn-reset">Kosongkan</button>
+                    <button type="submit" class="btn btn-submit">Simpan Asset</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>

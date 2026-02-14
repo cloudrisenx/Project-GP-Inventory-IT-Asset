@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Tabel Asset IT - Griya Persada</title>
+    <style>
+        /* --- WARNA BRAND --- */
+        :root {
+            --gp-green: #2A6546;
+            --gp-orange: #E77937;
+            --gp-black: #1A1917;
+            --gp-accent: #5E5E55;
+            --gp-red: #e74c3c;
+            --bg-body: #F0F4F2;
+            --white: #FFFFFF;
+        }
+
+        /* --- RESET DASAR --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--gp-black);
+        }
+
+        /* --- NAVIGASI ATAS --- */
+        .top-navbar {
+            background-color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: var(--gp-green);
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-back:hover { color: var(--gp-orange); }
+
+        /* --- AREA KONTEN & TABEL --- */
+        .main-content { padding: 30px; }
+
+        .table-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            overflow-x: auto;
+        }
+
+        .gp-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13.5px;
+        }
+
+        .gp-table thead tr {
+            background-color: var(--gp-black); /* Dibedakan warnanya untuk mode Edit */
+            color: var(--white);
+        }
+
+        .gp-table th {
+            padding: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .gp-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            vertical-align: middle;
+        }
+
+        .gp-table tbody tr:hover { background-color: #F8FAF9; }
+
+        /* --- BADGE & BARCODE --- */
+        .status-badge {
+            background-color: #E2E8F0;
+            color: #334155;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .barcode-text {
+            display: inline-block;
+            background: #F1F5F9;
+            padding: 6px 10px;
+            border: 1px solid #CBD5E1;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        /* --- TOMBOL AKSI --- */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--white);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-edit { background: var(--gp-orange); }
+        .btn-edit:hover { background: #d66b2d; }
+        
+        .btn-delete { background: var(--gp-red); }
+        .btn-delete:hover { background: #c0392b; }
+
+        /* --- MODAL POPUP EDIT --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-container {
+            background: var(--white);
+            width: 90%;
+            max-width: 800px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: var(--gp-orange);
+            color: var(--white);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 { margin: 0; font-size: 16px; letter-spacing: 1px; }
+        .close-btn { font-size: 24px; cursor: pointer; line-height: 1; }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* Form Grid di dalam Modal */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-label { font-size: 11px; font-weight: bold; color: var(--gp-accent); text-transform: uppercase; }
+        
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background-color: #F8FAF9;
+        }
+        .form-control:focus { outline: none; border-color: var(--gp-orange); background-color: var(--white); }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+
+        .modal-footer {
+            padding: 15px 24px;
+            background: #FAFAFA;
+            border-top: 1px solid #F1F5F9;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-save { background: var(--gp-green); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-cancel { background: transparent; color: var(--gp-accent); border: 1px solid #CBD5E1; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+    </style>
+</head>
+<body>
+
+    <!-- DATA STORE AMAN -->
+   <div id="safe-json-data" style="display: none;">{{ assets_json | safe }}</div>
+
+    <nav class="top-navbar">
+        <a href="/" class="btn-back">← KEMBALI KE DASHBOARD</a>
+        <div style="font-weight: 800; color: var(--gp-black); letter-spacing: 1px;">MODE MANAJEMEN DATA</div>
+    </nav>
+
+    <main class="main-content">
+        <div class="table-card">
+            <table class="gp-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Kategori</th>
+                        <th>Barcode</th>
+                        <th>Nama Asset</th>
+                        <th>Status</th>
+                        <th>Lokasi</th>
+                        <th>Manajemen Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in assets %}
+                    <tr>
+                        <td style="font-weight: bold; color: var(--gp-accent);">{{ loop.index }}</td>
+                        <td><span style="font-weight: bold;">{{ item.category_name or '-' }}</span></td>
+                        <td><div class="barcode-text">{{ item.barcode }}</div></td>
+                        <td style="color: var(--gp-green); font-weight: bold;">{{ item.product_name }}</td>
+                        <td><span class="status-badge">{{ item.status_name or 'N/A' }}</span></td>
+                        <td>{{ item.lokasi_full or '-' }}</td>
+                        <td>
+                            <div class="action-btns">
+                                <!-- PERBAIKAN: Menambahkan tanda kutip agar terhindar dari error JS saat nilai kosong -->
+                                <button class="btn-action btn-edit" onclick="openEditModal('{{ item.asset_id }}')">✏️ Edit</button>
+                                
+                                <!-- Form untuk Menghapus Data -->
+                                <form action="/hapus-data/{{ item.asset_id }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus aset ini secara permanen?');">
+                                    <button type="submit" class="btn-action btn-delete">🗑️ Hapus</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px; color: var(--gp-accent);">
+                            Belum ada data asset yang terdaftar.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- MODAL EDIT DATA -->
+    <div class="modal-overlay" id="modal-edit" onclick="closeEditModal()">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>PERBARUI DATA ASSET</h3>
+                <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            </div>
+            
+            <form action="/update-data" method="POST">
+                <div class="modal-body">
+                    <!-- ID Tersembunyi untuk referensi update di PostgreSQL -->
+                    <input type="hidden" name="asset_id" id="edit_asset_id">
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label">Nama Asset / Produk *</label>
+                            <input type="text" name="product_name" id="edit_product_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Barcode / ID Unik</label>
+                            <input type="text" name="barcode" id="edit_barcode" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Serial Number</label>
+                            <input type="text" name="serial_number" id="edit_serial_number" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Model / Tipe</label>
+                            <input type="text" name="model" id="edit_model" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pabrikan / Merk</label>
+                            <input type="text" name="manufacturer" id="edit_manufacturer" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kategori *</label>
+                            <select name="category_id" id="edit_category_id" class="form-control" required>
+                                <option value="">-- Pilih --</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.category_id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kondisi / Status *</label>
+                            <select name="status_id" id="edit_status_id" class="form-control" required>
+                                <option value="">-- Pilih --</option>
+                                {% for stat in statuses %}
+                                    <option value="{{ stat.status_id }}">{{ stat.status_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lokasi Penempatan *</label>
+                            <select name="location_id" id="edit_location_id" class="form-control" required>
+                                <option value="">-- Pilih --</option>
+                                {% for loc in locations %}
+                                    <option value="{{ loc.location_id }}">{{ loc.site_name }} - {{ loc.room_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Supplier / Vendor</label>
+                            <select name="supplier_id" id="edit_supplier_id" class="form-control">
+                                <option value="">-- Pilih --</option>
+                                {% for sup in suppliers %}
+                                    <option value="{{ sup.supplier_id }}">{{ sup.company_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tanggal Pembelian</label>
+                            <input type="date" name="purchase_date" id="edit_purchase_date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Harga Beli (Rp)</label>
+                            <input type="number" name="purchase_cost" id="edit_purchase_cost" class="form-control" step="0.01">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Spesifikasi Teknis </label>
+                            <textarea name="specs" id="edit_specs" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Batal</button>
+                    <button type="submit" class="btn-save">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 1. Ekstraksi Data Aman
+        let assetData = [];
+        try {
+            const rawText = document.getElementById('safe-json-data').textContent;
+            if(rawText && rawText.trim() !== "") {
+                assetData = JSON.parse(rawText);
+            }
+        } catch (error) {
+            console.error("Gagal membaca data JSON:", error);
+        }
+
+        // 2. Fungsi Buka Modal Edit
+        function openEditModal(asset_id) {
+            // PERBAIKAN: Gunakan '==' agar String '1' (dari HTML) bisa cocok dengan Integer 1 (dari DB)
+            const data = assetData.find(a => a.asset_id == asset_id);
+            if (!data) return;
+
+            // Masukkan data ke dalam form input menggunakan ID HTML
+            document.getElementById('edit_asset_id').value = data.asset_id;
+            document.getElementById('edit_product_name').value = data.product_name || '';
+            document.getElementById('edit_barcode').value = data.barcode || '';
+            document.getElementById('edit_serial_number').value = data.serial_number || '';
+            document.getElementById('edit_model').value = data.model || '';
+            document.getElementById('edit_manufacturer').value = data.manufacturer || '';
+            
+            // Dropdowns (Set value sesuai ID di database)
+            document.getElementById('edit_category_id').value = data.category_id || '';
+            document.getElementById('edit_status_id').value = data.status_id || '';
+            document.getElementById('edit_location_id').value = data.location_id || '';
+            document.getElementById('edit_supplier_id').value = data.supplier_id || '';
+            
+            document.getElementById('edit_purchase_cost').value = data.purchase_cost || '';
+
+            // Handle Spesifikasi (Langsung tampilkan text apa adanya)
+            document.getElementById('edit_specs').value = data.specs || '';
+
+            // Handle format Tanggal (Input HTML Date butuh format YYYY-MM-DD)
+            // Python PostgreEncoder mengubahnya jadi DD-MM-YYYY, jadi kita harus membaliknya
+            if (data.purchase_date) {
+                const parts = data.purchase_date.split('-');
+                if(parts.length === 3) {
+                    // parts = [DD, MM, YYYY] -> diubah ke YYYY-MM-DD
+                    document.getElementById('edit_purchase_date').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
+            } else {
+                document.getElementById('edit_purchase_date').value = '';
+            }
+
+            // Tampilkan Modal
+            document.getElementById('modal-edit').style.display = 'flex';
+        }
+
+        // 3. Fungsi Tutup Modal
+        function closeEditModal() {
+            document.getElementById('modal-edit').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

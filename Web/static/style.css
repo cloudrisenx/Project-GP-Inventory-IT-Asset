@@ -1,0 +1,340 @@
+/* --- WARNA BRAND & VARIABEL --- */
+:root {
+    --gp-green: #2A6546;
+    --gp-orange: #E77937;
+    --gp-black: #1A1917;
+    --gp-accent: #5E5E55;
+    --bg-body: #F0F4F2;
+    --white: #FFFFFF;
+}
+
+/* --- RESET DASAR --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background-color: var(--bg-body); 
+    color: var(--gp-black);
+    margin: 0;
+}
+
+/* --- NAVIGASI ATAS --- */
+.top-navbar {
+    background-color: var(--white);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid #ddd;
+}
+
+.btn-back {
+    text-decoration: none;
+    color: var(--gp-green);
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-back:hover { color: var(--gp-orange); }
+
+.nav-buttons { display: flex; gap: 15px; }
+
+/* Tombol Aksi Utama */
+.btn-action {
+    background: transparent;
+    border: 2px solid var(--gp-orange);
+    color: var(--gp-black);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-action:hover {
+    background: var(--gp-orange);
+    color: var(--white);
+}
+
+.btn-print-qr {
+    background: var(--gp-orange);
+    color: white;
+    width: 100%;
+    padding: 12px;
+}
+
+/* --- TABEL --- */
+.main-content { padding: 30px; }
+
+.table-card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    overflow-x: auto;
+}
+
+.gp-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13.5px;
+}
+
+.gp-table thead tr {
+    background-color: var(--gp-green);
+    color: var(--white);
+}
+
+.gp-table th {
+    padding: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.gp-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    vertical-align: middle;
+}
+
+.gp-table tbody tr:hover { background-color: #F8FAF9; }
+
+/* --- BADGE, BARCODE & LINK --- */
+.status-badge {
+    background-color: #E2E8F0;
+    color: #334155;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.link-vendor {
+    color: var(--gp-green); 
+    font-weight: bold; 
+    text-decoration: underline; 
+    cursor: pointer;
+}
+
+.btn-detail {
+    background: var(--gp-green);
+    color: var(--white);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-detail:hover { background: #1f4c34; }
+
+/* --- LOGIKA TAMPILAN QR CODE DI TABEL --- */
+.barcode-text {
+    display: inline-block;
+    background: #F1F5F9;
+    padding: 6px 10px;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+.qr-box {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.qr-box:hover { background: #E2E8F0; }
+
+/* Class ini di-toggle oleh JS pada tabel */
+.show-qr-mode .barcode-text { display: none; }
+.show-qr-mode .qr-box { display: flex; }
+
+/* --- MODAL (UMUM & DETAIL) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    backdrop-filter: blur(3px);
+}
+
+.modal-container {
+    background: var(--white);
+    width: 90%;
+    max-width: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    pointer-events: auto;
+}
+
+.modal-header {
+    background: var(--gp-green);
+    color: var(--white);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 { margin: 0; font-size: 16px; letter-spacing: 1px; }
+.close-btn { font-size: 24px; cursor: pointer; line-height: 1; }
+
+.detail-grid {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 16px; 
+    padding: 24px;
+}
+
+.data-group { display: flex; flex-direction: column; }
+.data-label { font-size: 11px; font-weight: bold; color: var(--gp-accent); text-transform: uppercase; margin-bottom: 2px; }
+.data-value { font-size: 14px; font-weight: 600; color: var(--gp-black); }
+
+/* --- MODAL VENDOR (PROFESIONAL) --- */
+.vendor-modal-container {
+    background: #fff;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    position: relative;
+    pointer-events: auto;
+}
+
+.vendor-header {
+    background-color: var(--gp-black);
+    color: #fff;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vendor-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vendor-body { padding: 24px; }
+
+/* Grid Layout Vendor */
+.vendor-info-row {
+    display: grid;
+    grid-template-columns: 120px 1fr; 
+    gap: 15px;
+    margin-bottom: 16px;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 12px;
+}
+.vendor-info-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.v-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.v-value {
+    font-size: 15px;
+    color: #0f172a;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.vendor-footer {
+    padding: 16px 24px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-close-header {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+.btn-close-header:hover { opacity: 1; }
+
+/* --- MODAL ZOOM QR --- */
+.qr-zoom-body {
+    padding: 24px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 15px; 
+    text-align: center;
+}
+
+#large-qr-text { margin: 0; color: var(--gp-black); font-family: monospace; letter-spacing: 2px; }
+#large-qr-product { margin: 5px 0 0 0; color: var(--gp-accent); }
+
+/* --- MODE CETAK (PRINT) --- */
+@media print {
+    /* Sembunyikan elemen navigasi dan tombol saat print biasa */
+    body:not(.print-qr-only) .top-navbar, 
+    body:not(.print-qr-only) .btn-detail,
+    body:not(.print-qr-only) .modal-overlay { display: none !important; }
+    
+    body:not(.print-qr-only) .main-content { padding: 0; }
+    body:not(.print-qr-only) .table-card { box-shadow: none; border: none; }
+    
+    /* Paksa QR code tampil saat print laporan asset */
+    body:not(.print-qr-only) .show-qr-mode .qr-box { display: flex !important; }
+
+    /* --- MODE KHUSUS: CETAK SATU QR (ZPL STYLE) --- */
+    body.print-qr-only * { visibility: hidden; }
+    
+    body.print-qr-only #modal-qr, 
+    body.print-qr-only #modal-qr * { visibility: visible; }
+    
+    body.print-qr-only #modal-qr {
+        position: absolute; left: 0; top: 0; width: 100%; 
+        background: transparent; display: block !important;
+    }
+    
+    body.print-qr-only .modal-container { 
+        box-shadow: none; width: 100%; max-width: none; border: none;
+    }
+    
+    body.print-qr-only .modal-header,
+    body.print-qr-only .btn-action { display: none !important; }
+}

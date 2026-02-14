@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Inventaris IT - Griya Persada</title>
+    <!-- Library QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- PANGGIL CSS DARI FOLDER STATIC -->
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+    <!-- DATA STORE AMAN (Diisi oleh Jinja2 Backend) -->
+    <div id="safe-json-data" style="display: none;">{{ assets_json }}</div>
+
+    <nav class="top-navbar">
+        <a href="/" class="btn-back">← KEMBALI KE DASHBOARD</a>
+        <div class="nav-buttons">
+            <button class="btn-action" id="btn-toggle-qr" onclick="toggleQR()">Tampilkan QR Code</button>
+            <button class="btn-action" onclick="window.print()">Cetak PDF</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="table-card">
+            <table class="gp-table" id="asset-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Kategori</th>
+                        <th style="text-align: center;">Barcode / QR</th>
+                        <th>Nama Asset</th>
+                        <th>Status</th>
+                        <th>Lokasi</th>
+                        <th>Supplier</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in assets %}
+                    <tr>
+                        <td style="font-weight: bold; color: var(--gp-accent);">{{ loop.index }}</td>
+                        <td><span style="font-weight: bold;">{{ item.category_name or '-' }}</span></td>
+                        <td style="text-align: center; width: 150px;">
+                            <div class="barcode-text">{{ item.barcode }}</div>
+                            <div class="qr-box" onclick="zoomQR('{{ item.barcode }}')" title="Klik untuk perbesar QR">
+                                <div class="qr-render" data-code="{{ item.barcode }}"></div>
+                                <span style="font-size: 11px; font-weight: bold;">{{ item.barcode }}</span>
+                            </div>
+                        </td>
+                        <td style="color: var(--gp-green); font-weight: bold;">{{ item.product_name }}</td>
+                        <td><span class="status-badge">{{ item.status_name or 'N/A' }}</span></td>
+                        <td>{{ item.lokasi_full or '-' }}</td>
+                        <td>
+                            {% if item.supplier_name %}
+                                <a href="javascript:void(0)" 
+                                    onclick="openSupplierModal('{{ item.barcode }}')"
+                                    class="link-vendor">
+                                    {{ item.supplier_name }}
+                                </a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn-detail" onclick="openModal('{{ item.barcode }}')">Detail</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 30px; color: var(--gp-accent);">
+                            Belum ada data asset yang terdaftar.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Modal Popup Profil Supplier/Vendor -->
+    <div class="modal-overlay" id="modal-supplier" style="z-index: 9999; display: none;" onclick="closeSupplierModal()">
+        <div class="vendor-modal-container" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="vendor-header"> 
+                <div class="vendor-title">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    PROFIL VENDOR
+                </div>
+                <button class="btn-close-header" type="button" onclick="closeSupplierModal()">&times;</button>
+            </div>
+            
+            <!-- Body -->
+            <div class="vendor-body" id="modal-supplier-content"></div>
+
+            <!-- Footer -->
+            <div class="vendor-footer" id="modal-supplier-footer"></div>
+        </div>
+    </div>
+
+    <!-- Modal Popup Detail (Informasi Lengkap) -->
+    <div class="modal-overlay" id="modal-detail" onclick="closeModal()">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>INFORMASI ASSET LENGKAP</h3>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body detail-grid" id="modal-content-area"></div>
+        </div>
+    </div>
+
+    <!-- Modal Popup QR Code -->
+    <div class="modal-overlay" id="modal-qr" onclick="closeQRModal()">
+        <div class="modal-container" style="max-width: 380px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>QR CODE ASSET</h3>
+                <span class="close-btn" onclick="closeQRModal()">&times;</span>
+            </div>
+            <div class="modal-body qr-zoom-body">
+                <div id="large-qr-render"></div>
+                <div>
+                    <h2 id="large-qr-text"></h2>
+                    <h4 id="large-qr-product"></h4>
+                </div>
+                <button class="btn-action btn-print-qr" onclick="printOnlyQR()">🖨️ Cetak QR Saja</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANGGIL JS DARI FOLDER STATIC -->
+    <script src="static/tabel.js"></script>
+</body>
+</html>
