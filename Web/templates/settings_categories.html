@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Departemen & Kategori - Inventory IT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+    <style>
+        .settings-layout { display: flex; flex-direction: column; gap: 40px; }
+        
+        .settings-card {
+            background: var(--bg-card); border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
+            padding: 25px;
+        }
+
+        .card-header { margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;}
+        .card-header h3 { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-main); font-size: 1.3rem;}
+        .card-header p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;}
+
+        /* --- STYLING TOMBOL BATAL (PUTIH) DI DALAM HTML --- */
+        .btn-cancel-white {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-cancel-white:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--text-muted);
+        }
+
+        /* --- LAYOUT GRID --- */
+        .grid-form {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 180px; /* 3 Kolom: Kiri | Tengah | Kanan(Tombol) */
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 15px;
+        }
+        
+        .code-badge {
+            font-family: 'JetBrains Mono', monospace; 
+            background: var(--bg-hover); 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-form { grid-template-columns: 1fr; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="page-header animate-fade-in">
+            <a href="/settings" class="btn-back">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Kembali
+            </a>
+            <div class="page-title"><h2 style="font-family: 'Plus Jakarta Sans', sans-serif;">Pengaturan Klasifikasi</h2></div>
+            <div style="width: 80px;"></div>
+        </div>
+
+        <!-- NOTIFIKASI BERHASIL / GAGAL DIPERBAIKI -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'success' %}
+                        <div style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; font-size: 14px; font-weight: 600; background: rgba(52, 211, 153, 0.2); color: #064E3B; border: 1px solid #34D399;">
+                            {{ message }}
+                        </div>
+                    {% else %}
+                        <div style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; font-size: 14px; font-weight: 600; background: rgba(220, 38, 38, 0.2); color: #7F1D1D; border: 1px solid #DC2626;">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="settings-layout">
+            
+            <!-- ========================================== -->
+            <!-- BAGIAN 1: PENGATURAN DEPARTEMEN -->
+            <!-- ========================================== -->
+            <div class="settings-card animate-slide-up" style="animation-delay: 0.1s;">
+                <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                    <h3>1. Database Departemen</h3>
+                    <p>Kelola daftar departemen utama dan singkatan kodenya.</p>
+                </div>
+                
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+                <form action="/settings/departments/save" method="POST" class="grid-form" style="margin-bottom: 25px;">
+                    <input type="hidden" id="form_dept_id_only" name="department_id">
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Nama Departemen Baru / Edit <span style="color: #DC2626;">*</span></label>
+                        <input type="text" id="form_dept_name_only" name="name" required placeholder="Contoh: Engineering" style="height: 44px;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Kode Dept</label>
+                        <input type="text" id="form_dept_code_only" name="code" placeholder="Misal: ENG" style="height: 44px;">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-cancel-white" id="btnCancelDept" style="display: none; height: 44px; width: 100%;" onclick="cancelEditDept()">Batal Edit</button>
+                        <button type="submit" class="btn-primary" style="height: 44px; width: 100%; white-space: nowrap;">Simpan Dept</button>
+                    </div>
+                </form>
+
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead style="position: sticky; top: 0; z-index: 10;">
+                            <tr>
+                                <th width="50" style="text-align: center;">No</th>
+                                <th>Kode Dept</th>
+                                <th>Nama Departemen</th>
+                                <th width="120" style="text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dept in departments %}
+                            <tr>
+                                <td style="text-align: center; color: var(--text-muted); font-weight: 600;">{{ loop.index }}</td>
+                                <td><span class="code-badge">{{ dept.code or '-' }}</span></td>
+                                <td><strong style="color: var(--text-main);">{{ dept.name }}</strong></td>
+                                <td>
+                                    <div class="action-buttons" style="justify-content: center;">
+                                        <button type="button" class="btn-sm btn-edit" onclick="triggerEditDept('{{ dept.department_id }}', '{{ dept.name }}', '{{ dept.code }}')">Edit</button>
+                                        <form action="/settings/departments/delete/{{ dept.department_id }}" method="POST" onsubmit="return confirm('Hapus departemen ini?');" style="margin:0;">
+                                            <button type="submit" class="btn-sm btn-delete">Hapus</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada data departemen.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAGIAN 2: PENGATURAN KATEGORI -->
+            <!-- ========================================== -->
+            <div class="settings-card animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="card-header">
+                    <h3>2. Tambah / Relasikan Kategori</h3>
+                    <p>Pilih departemen untuk memfilter tabel di bawah, lalu tambahkan atau edit kategori.</p>
+                </div>
+                
+                <form action="/settings/categories/save" method="POST" style="margin-bottom: 25px;">
+                    <input type="hidden" id="form_category_id" name="category_id">
+                    
+                    <!-- BARIS 1: Dept | Kode Dept | Batal -->
+                    <div class="grid-form">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Department <span style="color: #DC2626;">*</span></label>
+                            <select id="form_dept_id_cat" name="department_id" required style="height: 44px;">
+                                <option value="" data-code="">-- Pilih Dept --</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept.department_id }}" data-code="{{ dept.code or '' }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Kode Department</label>
+                            <input type="text" id="form_dept_code_cat" class="form-control" readonly style="background: var(--bg-hover); color: var(--text-muted); cursor: not-allowed; height: 44px;" placeholder="-">
+                        </div>
+
+                        <div style="display: flex; align-items: flex-end;">
+                            <button type="button" class="btn-cancel-white" id="btnCancelCat" style="display: none; height: 44px; width: 100%;" onclick="cancelEditCat()">Batal Edit</button>
+                        </div>
+                    </div>
+
+                    <!-- BARIS 2: Kategori | Kode Kategori | Simpan -->
+                    <div class="grid-form">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Nama Kategori <span style="color: #DC2626;">*</span></label>
+                            <input type="text" id="form_cat_name" name="name" required placeholder="Contoh: Laptop" style="height: 44px;">
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Kode Kategori</label>
+                            <input type="text" id="form_cat_code" name="code" placeholder="Misal: HW" style="height: 44px;">
+                        </div>
+
+                        <div style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn-primary" style="height: 44px; width: 100%; white-space: nowrap;">Simpan Kategori</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="catTable">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Kode Dept</th>
+                                <th>Nama Kategori</th>
+                                <th>Kode Kategori</th>
+                                <th width="120" style="text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr class="t-row" data-dept-id="{{ item.department_id }}">
+                                <td><strong style="color: var(--text-main);">{{ item.department_name or 'Umum' }}</strong></td>
+                                <td><span class="code-badge">{{ item.dept_code or '-' }}</span></td>
+                                <td><strong style="color: var(--gp-green);">{{ item.name }}</strong></td>
+                                <td><span class="code-badge">{{ item.code or '-' }}</span></td>
+                                <td>
+                                    <div class="action-buttons" style="justify-content: center;">
+                                        <button type="button" class="btn-sm btn-edit" onclick="triggerEditCat('{{ item.category_id }}', '{{ item.name }}', '{{ item.department_id }}', '{{ item.dept_code }}', '{{ item.code }}')">Edit</button>
+                                        <form action="/settings/categories/delete/{{ item.category_id }}" method="POST" onsubmit="return confirm('Hapus kategori ini?');" style="margin:0;">
+                                            <button type="submit" class="btn-sm btn-delete">Hapus</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--text-muted);">Belum ada data struktur kategori.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='settings.js') }}"></script>
+    <script>
+        // --- LOGIKA FORM DEPARTEMEN ---
+        function triggerEditDept(id, name, code) {
+            document.getElementById('form_dept_id_only').value = id;
+            document.getElementById('form_dept_name_only').value = name;
+            document.getElementById('form_dept_code_only').value = (code !== 'None' && code) ? code : '';
+            
+            document.getElementById('btnCancelDept').style.display = 'inline-flex'; 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            document.getElementById('form_dept_name_only').focus();
+        }
+
+        function cancelEditDept() {
+            document.getElementById('form_dept_id_only').value = '';
+            document.getElementById('form_dept_name_only').value = '';
+            document.getElementById('form_dept_code_only').value = '';
+            document.getElementById('btnCancelDept').style.display = 'none';
+        }
+
+        // --- LOGIKA FORM KATEGORI & FILTER TABEL ---
+        document.getElementById('form_dept_id_cat').addEventListener('change', function() {
+            // 1. Auto-fill kode dept
+            const selectedOpt = this.options[this.selectedIndex];
+            const deptCode = selectedOpt.getAttribute('data-code') || '';
+            document.getElementById('form_dept_code_cat').value = deptCode;
+
+            // 2. Filter Tabel berdasarkan Departemen yang dipilih
+            const selectedDeptId = this.value;
+            const rows = document.querySelectorAll('#catTable tbody .t-row');
+            
+            rows.forEach(row => {
+                if (!selectedDeptId || selectedDeptId === "") {
+                    row.style.display = ''; // Tampilkan semua jika kembali ke "-- Pilih Dept --"
+                } else {
+                    const rowDeptId = row.getAttribute('data-dept-id');
+                    if (rowDeptId === selectedDeptId) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        function triggerEditCat(catId, catName, deptId, deptCode, catCode) {
+            document.getElementById('form_category_id').value = catId;
+            document.getElementById('form_dept_id_cat').value = deptId;
+            document.getElementById('form_dept_code_cat').value = (deptCode !== 'None' && deptCode) ? deptCode : '';
+            document.getElementById('form_cat_name').value = catName;
+            document.getElementById('form_cat_code').value = (catCode !== 'None' && catCode) ? catCode : '';
+            
+            document.getElementById('btnCancelCat').style.display = 'inline-flex'; 
+            document.getElementById('form_cat_name').focus();
+
+            // Trigger event change agar tabel ikut terfilter sesuai data yang sedang diedit
+            document.getElementById('form_dept_id_cat').dispatchEvent(new Event('change'));
+        }
+
+        function cancelEditCat() {
+            document.getElementById('form_category_id').value = '';
+            document.getElementById('form_dept_id_cat').value = '';
+            document.getElementById('form_dept_code_cat').value = '';
+            document.getElementById('form_cat_name').value = '';
+            document.getElementById('form_cat_code').value = '';
+            document.getElementById('btnCancelCat').style.display = 'none';
+
+            // Reset filter tabel
+            document.getElementById('form_dept_id_cat').dispatchEvent(new Event('change'));
+        }
+    </script>
+</body>
+</html>

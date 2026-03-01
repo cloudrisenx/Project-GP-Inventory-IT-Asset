@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan - Inventory Asset</title>
+    <!-- Memanggil CSS Tema Gelap yang Sama dengan Dashboard -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Script Tema -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+<body>
+    <div class="dashboard-container">
+        
+        <!-- Header -->
+        <div class="page-header animate-fade-in">
+            <a href="/" class="btn-back">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Kembali ke Dashboard
+            </a>
+            <div class="page-title">
+                <h2 style="font-family: 'Plus Jakarta Sans', sans-serif;">Pengaturan Sistem</h2>
+            </div>
+            <div style="width: 80px;"></div> <!-- Spacer untuk menyeimbangkan layout -->
+        </div>
+
+        <!-- Grid Menu Settings -->
+        <div class="menu-grid">
+            
+            <a href="/settings/locations" class="menu-item animate-slide-up" style="animation-delay: 0.1s;">
+                <div class="icon">📍</div>
+                <span class="label">Database Lokasi</span>
+                <span class="description">Kelola nama gedung & ruangan penempatan asset</span>
+            </a>
+
+            <!-- Opsi Kategori sekarang merujuk ke halaman yang sudah digabung dengan Departemen -->
+            {% if user.role == 'admin' %}
+            <a href="/settings/categories" class="menu-item animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="icon">🏷️</div>
+                <span class="label">Departemen & Kategori</span>
+                <span class="description">Kelola departemen pemilik dan kategori per departemen</span>
+            </a>
+            {% endif %}
+
+            <a href="/settings/suppliers" class="menu-item animate-slide-up" style="animation-delay: 0.3s;">
+                <div class="icon">🏢</div>
+                <span class="label">Database Supplier</span>
+                <span class="description">Kelola data vendor, toko, dan kontak service</span>
+            </a>
+
+            {% if user.role == 'admin' %}
+            <a href="/settings/status" class="menu-item animate-slide-up" style="animation-delay: 0.4s;">
+                <div class="icon">❤️</div>
+                <span class="label">Status Asset</span>
+                <span class="description">Kelola opsi kondisi asset (Baik, Rusak, dsb)</span>
+            </a>
+            {% endif %}
+
+            <!-- OPSI KHUSUS TAMBAH PENGGUNA (Hanya tampil jika user adalah admin) -->
+            {% if user.role == 'admin' %}
+            <a href="/tambah-user" class="menu-item animate-slide-up" style="animation-delay: 0.5s; border-color: var(--gp-orange);">
+                <div class="icon">👥</div>
+                <span class="label">Manajemen Pengguna</span>
+                <span class="description">Tambah dan atur hak akses akun (Admin / Guest)</span>
+            </a>
+            {% endif %}
+
+        </div>
+
+        <footer class="main-footer">
+            <p>Konfigurasi Database Master &bull; Sistem Inventory Asset IT</p>
+        </footer>
+    </div>
+</body>
+</html>

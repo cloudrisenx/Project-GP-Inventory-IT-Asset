@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ID Asset - {{ asset.barcode }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Desain Khusus Mobile App - Digital ID Card */
+        :root {
+            --bg-main: #0B1121;
+            --card-bg: #1F2937;
+            --gp-green: #34D399;
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --border: #374151;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 20px 15px;
+            display: flex; justify-content: center;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header Brand */
+        .brand-header {
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            padding-bottom: 20px; border-bottom: 1px dashed var(--border);
+        }
+        
+        .logo-img {
+            width: 160px;
+            height: auto;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 20px rgba(52, 211, 153, 0.2));
+        }
+
+        .brand-header h2 { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.4rem; color: var(--text-main); }
+        .brand-header p { margin: 4px 0 0 0; font-size: 0.85rem; color: var(--gp-green); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Card Info */
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+        }
+
+        /* Judul Produk */
+        .product-title { margin: 0 0 5px 0; font-size: 1.5rem; font-family: 'Plus Jakarta Sans'; line-height: 1.2;}
+        .product-meta { font-size: 0.9rem; color: var(--text-muted); margin: 0 0 20px 0;}
+        .barcode-badge {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(52, 211, 153, 0.15); color: var(--gp-green);
+            padding: 4px 10px; border-radius: 6px; font-size: 0.9rem;
+            display: inline-block; margin-bottom: 20px; border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        /* Detail List Utama */
+        .data-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--border);
+        }
+        .data-row:last-child { border-bottom: none; }
+        
+        .data-label { color: var(--text-muted); font-size: 0.85rem; }
+        .data-value { font-weight: 600; font-size: 0.9rem; text-align: right; }
+        .data-value.mono { font-family: 'JetBrains Mono', monospace; color: #93C5FD; }
+
+        /* Grid Informasi Penyusutan & Nilai Asset */
+        .calc-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px;
+        }
+        .calc-box {
+            background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px 14px;
+            border: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px;
+        }
+        .calc-box span.lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .calc-box span.val { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+        .calc-box span.val-highlight { color: var(--gp-green); }
+        .calc-box span.val-warn { color: #F97316; }
+
+        /* Keterangan */
+        .note-box {
+            background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px;
+            margin-top: 20px; border: 1px solid var(--border);
+        }
+        .note-box span { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px; }
+        .note-box p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
+
+        /* Tombol WhatsApp */
+        .btn-wa {
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            background: #25D366; color: #000000; text-decoration: none;
+            padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1rem;
+            margin-top: 25px; transition: transform 0.2s;
+        }
+        .btn-wa:active { transform: scale(0.98); }
+        .btn-wa svg { width: 20px; height: 20px; }
+
+        /* Footer */
+        .footer { text-align: center; font-size: 0.8rem; color: #4B5563; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Container Tersembunyi untuk Data Logic Javascript (Ditambah data-day untuk DATEDIF) -->
+    <div id="asset-data"
+         data-cost="{{ asset.purchase_cost or 0 }}"
+         data-age="{{ asset.age_asset or 0 }}"
+         data-year="{{ asset.purchase_date.year if asset.purchase_date else 0 }}"
+         data-month="{{ asset.purchase_date.month if asset.purchase_date else 0 }}"
+         data-day="{{ asset.purchase_date.day if asset.purchase_date else 0 }}"
+         data-date-str="{{ asset.purchase_date.strftime('%d-%m-%Y') if asset.purchase_date else '-' }}"
+         style="display: none;"></div>
+
+    <div class="mobile-container">
+        
+        <div class="brand-header">
+            <img src="/static/logogpbandungan.png" alt="Logo Griya Persada" class="logo-img" onerror="this.src='https://placehold.co/320x100?text=Griya+Persada'">
+            <h2>Griya Persada</h2>
+            <p>Inventory System</p>
+        </div>
+
+        <div class="info-card">
+            <span class="barcode-badge">ID: {{ asset.barcode }}</span>
+            <h1 class="product-title">{{ asset.product_name }}</h1>
+            <p class="product-meta">Model: {{ asset.model if asset.model else '-' }}</p>
+
+            <div class="data-row">
+                <span class="data-label">Serial Number</span>
+                <span class="data-value mono">{{ asset.serial_number if asset.serial_number else '-' }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Kategori</span>
+                <span class="data-value">{{ asset.category_name if asset.category_name else '-' }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Departemen</span>
+                <span class="data-value">{{ asset.department_full if asset.department_full else '-' }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Lokasi</span>
+                <span class="data-value">{{ asset.lokasi_full if asset.lokasi_full else '-' }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Status Kondisi</span>
+                <span class="data-value">{{ asset.status_name if asset.status_name else '-' }}</span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Garansi</span>
+                <span class="data-value">{{ asset.warranty_info if asset.warranty_info else '-' }}</span>
+            </div>
+
+            <!-- Blok Kalkulasi -->
+            <div class="calc-grid">
+                <div class="calc-box">
+                    <span class="lbl">Tgl Pembelian</span>
+                    <span class="val" id="val-tanggal">-</span>
+                </div>
+                <div class="calc-box">
+                    <span class="lbl">Vendor</span>
+                    <span class="val val-warn">{{ asset.supplier_name if asset.supplier_name else '-' }}</span>
+                </div>
+                
+                <div class="calc-box">
+                    <span class="lbl">Harga Beli</span>
+                    <span class="val" id="val-harga">-</span>
+                </div>
+                <div class="calc-box" style="background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.3);">
+                    <span class="lbl">Nilai Saat Ini</span>
+                    <span class="val val-highlight" id="val-penyusutan">-</span>
+                </div>
+                
+                <div class="calc-box">
+                    <span class="lbl">Usia Asset</span>
+                    <span class="val">{{ asset.age_asset ~ ' Bulan' if asset.age_asset else '-' }}</span>
+                </div>
+                <div class="calc-box">
+                    <span class="lbl">Quantity</span>
+                    <span class="val">{{ asset.qty if asset.qty else '0' }} Unit</span>
+                </div>
+            </div>
+
+            <div class="note-box">
+                <span>Catatan Keterangan:</span>
+                <p>{{ asset.keterangan if asset.keterangan else 'Tidak ada keterangan tambahan.' }}</p>
+            </div>
+
+            <!-- Tombol WA jika ada kontak vendor -->
+            {% if wa_link %}
+            <a href="{{ wa_link }}" class="btn-wa" target="_blank">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                Hubungi Vendor
+            </a>
+            {% endif %}
+
+        </div>
+
+        <div class="footer">
+            Data valid pada sistem IT Griya Persada. <br> &copy; 2026
+        </div>
+    </div>
+
+    <!-- LOGIKA MENGHITUNG PENYUSUTAN (MIRIP DATEDIF EXCEL) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dataEl = document.getElementById('asset-data');
+            const cost = parseFloat(dataEl.getAttribute('data-cost')) || 0;
+            const age = parseFloat(dataEl.getAttribute('data-age')) || 0;
+            
+            const pYear = parseInt(dataEl.getAttribute('data-year')) || 0;
+            const pMonth = parseInt(dataEl.getAttribute('data-month')) || 0;
+            const pDay = parseInt(dataEl.getAttribute('data-day')) || 0;
+            const dateStr = dataEl.getAttribute('data-date-str');
+
+            const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
+
+            document.getElementById('val-tanggal').innerText = dateStr;
+            document.getElementById('val-harga').innerText = cost > 0 ? formatter.format(cost) : '-';
+
+            // Hitung Penyusutan berdasarkan DATEDIF "m" Excel
+            let valPenyusutan = '-';
+            if (cost > 0 && age > 0 && pYear > 0) {
+                const today = new Date();
+                
+                // Cari selisih bulan
+                let monthsPassed = (today.getFullYear() - pYear) * 12;
+                monthsPassed -= (pMonth - 1); // Bulan JS index 0, jadi dikurang 1
+                monthsPassed += today.getMonth();
+                
+                // Rules DATEDIF "m": Jika tanggal hari ini lebih kecil dari tanggal beli, belum 1 bulan penuh
+                if (today.getDate() < pDay) {
+                    monthsPassed--;
+                }
+                
+                if (monthsPassed < 0) monthsPassed = 0; // Cegah minus
+
+                // RUMUS: Cost - ((Cost / Age) * MonthsPassed)
+                let currentVal = cost - ((cost / age) * monthsPassed);
+                
+                // Jangan biarkan nilai menjadi minus (batas bawah Rp 0)
+                if (currentVal < 0) currentVal = 0;
+
+                valPenyusutan = formatter.format(currentVal);
+            }
+            document.getElementById('val-penyusutan').innerText = valPenyusutan;
+        });
+    </script>
+</body>
+</html>

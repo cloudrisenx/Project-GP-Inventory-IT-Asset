@@ -4,282 +4,399 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Asset IT - Griya Persada</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='tambah-data.css') }}">
+
+    <!-- Membaca Tema dari LocalStorage -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+
+    <!-- CSS KHUSUS MODAL SIDEBAR -->
     <style>
-        /* --- WARNA BRAND --- */
-        :root {
-            --gp-green: #2A6546;
-            --gp-orange: #E77937;
-            --gp-black: #1A1917;
-            --gp-accent: #5E5E55;
-            --bg-body: #F0F4F2;
-            --white: #FFFFFF;
-        }
-
-        /* --- RESET DASAR --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--gp-black);
-        }
-
-        /* --- NAVIGASI ATAS --- */
-        .top-navbar {
-            background-color: var(--white);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            position: sticky;
+        /* Overlay Gelap */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
             top: 0;
-            z-index: 50;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: hidden; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+            backdrop-filter: blur(2px); /* Efek blur sedikit */
         }
 
-        .btn-back {
-            text-decoration: none;
-            color: var(--gp-green);
-            font-weight: 800;
-            font-size: 14px;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.2s;
-        }
-        .btn-back:hover { color: var(--gp-orange); }
-
-        /* --- AREA FORM --- */
-        .main-content {
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .form-card {
-            background: var(--white);
-            width: 100%;
-            max-width: 800px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-
-        .form-header {
-            background-color: var(--gp-green);
-            color: var(--white);
-            padding: 20px 30px;
-            text-align: center;
-        }
-
-        .form-header h2 { margin: 0; font-size: 20px; letter-spacing: 1px; text-transform: uppercase; }
-        .form-header p { margin: 5px 0 0 0; font-size: 13px; opacity: 0.8; }
-
-        .form-body { padding: 30px; }
-
-        /* --- GRID LAYOUT --- */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .form-group {
+        /* Konten Modal (Sidebar Kanan) */
+        .modal-content {
+            background-color: var(--bg-card, #ffffff);
+            margin: 0;
+            padding: 24px;
+            border-left: 1px solid var(--border, #e5e7eb);
+            width: 400px; /* Lebar Sidebar */
+            height: 100vh; /* Tinggi Penuh */
+            position: absolute;
+            right: 0; /* Tempel ke Kanan */
+            top: 0;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            animation: slideInRight 0.3s ease-out;
         }
 
-        .form-group.full-width { grid-column: span 2; }
-
-        .form-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--gp-accent);
-            text-transform: uppercase;
+        /* Animasi Masuk dari Kanan */
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
-        .form-label span { color: #e74c3c; } /* Tanda Bintang Merah */
-
-        /* --- INPUT STYLES --- */
-        .form-control {
-            padding: 12px 15px;
-            border: 1px solid #CBD5E1;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            color: var(--gp-black);
-            transition: all 0.3s ease;
-            background-color: #F8FAF9;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--gp-green);
-            background-color: var(--white);
-            box-shadow: 0 0 0 3px rgba(42, 101, 70, 0.1);
-        }
-
-        textarea.form-control { resize: vertical; min-height: 100px; }
-
-        /* --- TOMBOL --- */
-        .form-footer {
-            padding: 20px 30px 30px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            background: #FAFAFA;
-            border-top: 1px solid #F1F5F9;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            border: none;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-reset {
-            background: transparent;
-            color: var(--gp-accent);
-            border: 2px solid #CBD5E1;
-        }
-        .btn-reset:hover { background: #F1F5F9; color: var(--gp-black); }
-
-        .btn-submit {
-            background: var(--gp-green);
-            color: var(--white);
-            box-shadow: 0 4px 10px rgba(42, 101, 70, 0.2);
-        }
-        .btn-submit:hover {
-            background: #1f4c34;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(42, 101, 70, 0.3);
-        }
-
-        @media (max-width: 600px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .form-group.full-width { grid-column: span 1; }
-        }
+        /* Responsif untuk HP */
+        @media (max-width: 480px) { .modal-content { width: 100%; } }
     </style>
 </head>
 <body>
 
+    <!-- NAVBAR -->
     <nav class="top-navbar">
-        <a href="/" class="btn-back">← KEMBALI KE DASHBOARD</a>
+        <div class="nav-brand">
+            <span class="brand-logo">GP</span>
+            <div class="brand-info">
+                <span class="brand-title">Griya Persada</span>
+                <span class="brand-subtitle">Asset Management</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="/" class="btn-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Dasboard
+            </a>
+        </div>
     </nav>
 
     <main class="main-content">
+        <div class="page-header">
+            <h1>Registrasi Asset Baru</h1>
+            <p>Lengkapi formulir di bawah. Gunakan fitur Auto-TagID untuk standarisasi label.</p>
+        </div>
+
         <div class="form-card">
-            <div class="form-header">
-                <h2>Tambah Data Asset IT</h2>
-                <p>Masukkan rincian barang inventaris baru ke dalam database</p>
-            </div>
-            
-            <!-- Form mengarah ke rute /simpan-data di Flask (Metode POST) -->
-            <form action="/simpan-data" method="POST" class="form-body">
-                <div class="form-grid">
-                    
-                    <!-- Nama Produk (Wajib) -->
-                    <div class="form-group full-width">
-                        <label class="form-label">Nama Asset / Produk <span>*</span></label>
-                        <input type="text" name="product_name" class="form-control" placeholder="Contoh: Laptop Lenovo Thinkpad T14" required>
-                    </div>
+            <form id="assetForm" action="/simpan-data" method="POST" class="form-body">
+                
+                <!-- SECTION 1: IDENTITAS PRODUK -->
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label">Nama Asset / Produk <span class="required">*</span></label>
+                            <input type="text" name="product_name" id="productName" class="form-control" placeholder="Contoh: Laptop Lenovo Thinkpad T14" required>
+                        </div>
 
-                    <!-- Barcode -->
-                    <div class="form-group">
-                        <label class="form-label">Barcode / ID Unik</label>
-                        <input type="text" name="barcode" class="form-control" placeholder="Contoh: IT-LP-001">
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label">Model / Tipe</label>
+                            <input type="text" name="model" id="modelInput" class="form-control" placeholder="Contoh: Thinkpad T14">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pabrikan / Merk</label>
+                            <input type="text" name="manufacturer" class="form-control" placeholder="Contoh: Lenovo, Dell, HP">
+                        </div>
 
-                    <!-- Serial Number -->
-                    <div class="form-group">
-                        <label class="form-label">Serial Number</label>
-                        <input type="text" name="serial_number" class="form-control" placeholder="S/N dari pabrik">
-                    </div>
+                        <!-- BARCODE GENERATOR -->
+                        <div class="form-group full-width">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label class="form-label">Barcode / Tag ID <span class="required">*</span></label>
+                                
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 13px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--primary); font-weight: 600;">
+                                        <input type="checkbox" id="autoBarcodeToggle"> Auto TagID
+                                    </label>
+                                    <button type="button" class="btn-setting-icon" onclick="openBarcodeSettings()" title="Pengaturan Format TagID">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-icon-wrapper">
+                                <span class="input-icon">#</span>
+                                <input type="text" name="barcode" id="barcodeInput" class="form-control font-code" placeholder="Isi manual atau centang Auto TagID" required>
+                            </div>
+                            <small class="form-hint" id="barcodeHint">Format Auto: DEP/CAT-MOD/LOC/YYYY-MM/HOTEL</small>
+                        </div>
 
-                    <!-- Model & Manufacturer -->
-                    <div class="form-group">
-                        <label class="form-label">Model / Tipe</label>
-                        <input type="text" name="model" class="form-control" placeholder="Contoh: T14 Gen 2">
+                        <div class="form-group full-width">
+                            <label class="form-label">Serial Number (SN)</label>
+                            <input type="text" name="serial_number" class="form-control font-code" placeholder="S/N Pabrik">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Pabrikan / Merk</label>
-                        <input type="text" name="manufacturer" class="form-control" placeholder="Contoh: Lenovo">
-                    </div>
-
-                    <!-- Dropdowns (Data diambil dari relasi Database via Jinja2) -->
-                    <div class="form-group">
-                        <label class="form-label">Kategori <span>*</span></label>
-                        <select name="category_id" class="form-control" required>
-                            <option value="">-- Pilih Kategori --</option>
-                            {% for cat in categories %}
-                                <option value="{{ cat.category_id }}">{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Kondisi / Status <span>*</span></label>
-                        <select name="status_id" class="form-control" required>
-                            <option value="">-- Pilih Status --</option>
-                            {% for stat in statuses %}
-                                <option value="{{ stat.status_id }}">{{ stat.status_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Lokasi Penempatan <span>*</span></label>
-                        <select name="location_id" class="form-control" required>
-                            <option value="">-- Pilih Lokasi --</option>
-                            {% for loc in locations %}
-                                <option value="{{ loc.location_id }}">{{ loc.site_name }} - {{ loc.room_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Supplier / Vendor</label>
-                        <select name="supplier_id" class="form-control">
-                            <option value="">-- Pilih Supplier --</option>
-                            {% for sup in suppliers %}
-                                <option value="{{ sup.supplier_id }}">{{ sup.company_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Data Pembelian -->
-                    <div class="form-group">
-                        <label class="form-label">Tanggal Pembelian</label>
-                        <input type="date" name="purchase_date" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Harga Beli (Rp)</label>
-                        <input type="number" name="purchase_cost" class="form-control" placeholder="Contoh: 15000000" step="0.01">
-                    </div>
-
-                    <!-- Spesifikasi (JSONB text / Keterangan) -->
-                    <div class="form-group full-width">
-                        <label class="form-label">Spesifikasi Teknis / Keterangan Tambahan (Format JSON/Teks)</label>
-                        <textarea name="specs" class="form-control" placeholder='Contoh: {"RAM": "16GB", "Storage": "512GB SSD"}'></textarea>
-                    </div>
-
                 </div>
 
+                <hr class="divider">
+
+                <!-- SECTION 2: KLASIFIKASI -->
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="deptSelect" class="form-label">Maingroup <span class="required">*</span></label>
+                            <select name="department_id" id="deptSelect" class="form-select" required>
+                                <option value="" data-code="">-- Pilih Maingroup --</option>
+                                {% for d in departments %}
+                                    <option value="{{ d.department_id }}" data-code="{{ d.code }}">{{ d.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label for="catSelect" class="form-label">Subgroup <span class="required">*</span></label>
+                                <button type="button" onclick="openAddCategoryModal()" style="background:none; border:none; color:var(--primary, #2563eb); font-size:12px; font-weight:600; cursor:pointer;">+ Baru</button>
+                            </div>
+                            <select name="category_id" id="catSelect" class="form-select" required disabled>
+                                <option value="" data-code="">-- Pilih Maingroup Dahulu --</option>
+                                {% for c in categories %}
+                                    <option value="{{ c.category_id }}" data-dept="{{ c.department_id }}" data-code="{{ c.code }}">{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label for="locSelect" class="form-label">Lokasi / Ruangan <span class="required">*</span></label>
+                                <button type="button" onclick="openAddLocationModal()" style="background:none; border:none; color:var(--primary, #2563eb); font-size:12px; font-weight:600; cursor:pointer;">+ Baru</button>
+                            </div>
+                            <select name="location_id" id="locSelect" class="form-select" required>
+                                <option value="" data-code="">-- Pilih Lokasi --</option>
+                                {% for l in locations %}
+                                    <option value="{{ l.location_id }}" data-code="{{ l.code }}">{{ l.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Kondisi Awal <span class="required">*</span></label>
+                            <select name="status_id" class="form-control" required>
+                                <option value="">-- Pilih Status --</option>
+                                {% for stat in statuses %}
+                                    <option value="{{ stat.status_id }}">{{ stat.status_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <!-- SECTION 3: DETAIL PEMBELIAN -->
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Tanggal Pembelian</label>
+                            <input type="date" name="purchase_date" id="purchaseDate" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Supplier / Vendor</label>
+                            <select name="supplier_id" class="form-control">
+                                <option value="">-- Pilih Supplier --</option>
+                                {% for sup in suppliers %}
+                                    <option value="{{ sup.supplier_id }}">{{ sup.company_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Harga Beli (Rp)</label>
+                            <div class="input-icon-wrapper">
+                                <span class="input-icon">Rp</span>
+                                <input type="number" name="purchase_cost" class="form-control" placeholder="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="expectedLife" class="form-label">Perkiraan Usia (Bulan)</label>
+                            <input type="number" name="age_asset" id="expectedLife" class="form-control" placeholder="Contoh: 60 (5 Tahun)" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Quantity (Unit)</label>
+                            <input type="number" name="qty" class="form-control" value="1" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Masa Garansi</label>
+                            <input type="text" name="warranty_info" class="form-control" placeholder="Contoh: 1 Tahun / Exp: 2026">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">Keterangan / Catatan Tambahan</label>
+                            <textarea name="keterangan" class="form-control" placeholder="Tuliskan spesifikasi teknis, kelengkapan, kendala, atau keterangan lainnya di sini..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOOTER ACTIONS -->
                 <div class="form-footer">
-                    <button type="reset" class="btn btn-reset">Kosongkan</button>
-                    <button type="submit" class="btn btn-submit">Simpan Asset</button>
+                    <button type="reset" class="btn btn-reset">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        Reset
+                    </button>
+                    <button type="submit" class="btn btn-submit">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Simpan Data Asset
+                    </button>
                 </div>
             </form>
         </div>
     </main>
 
+    <!-- MODAL PENGATURAN BARCODE -->
+    <div id="modal-barcode-settings" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeBarcodeSettings()" style="align-self: flex-end; cursor: pointer; font-size: 24px;">&times;</span>
+            <h3>Pengaturan Format Auto TagID</h3>
+            <div class="form-group">
+                <label class="form-label">Kode Properti / Hotel Akhiran</label>
+                <input type="text" id="hotelCodeInput" class="form-control" value="GPB" placeholder="Masukkan Kode (Misal: GPB)">
+                <small class="form-hint" style="margin-top: 8px; display: block;">Kode ini akan diletakkan di bagian paling akhir TagID. (Default: GPB)</small>
+            </div>
+            <button type="button" class="btn btn-submit" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="closeBarcodeSettings()">Selesai</button>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH SUBGROUP (CATEGORY) -->
+    <div id="modal-add-category" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAddCategoryModal()" style="align-self: flex-end; cursor: pointer; font-size: 24px;">&times;</span>
+            <h3>Tambah Subgroup Baru</h3>
+            <form id="formAddCategory" onsubmit="submitNewCategory(event)">
+                <div class="form-group">
+                    <label class="form-label">Maingroup (Induk)</label>
+                    <input type="text" id="addCatDeptName" class="form-control" readonly style="background-color: #f3f4f6; color: #6b7280;">
+                    <input type="hidden" id="addCatDeptId" name="department_id">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nama Subgroup <span class="required">*</span></label>
+                    <input type="text" name="category_name" class="form-control" placeholder="Contoh: Laptop, Monitor" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kode Subgroup <span class="required">*</span></label>
+                    <input type="text" name="category_code" class="form-control" placeholder="Contoh: LAP, MON" required maxlength="5" style="text-transform: uppercase;">
+                    <small class="form-hint">Maksimal 5 karakter huruf.</small>
+                </div>
+                <button type="submit" class="btn btn-submit" style="width: 100%; justify-content: center; margin-top: 10px;">Simpan Subgroup</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH LOKASI -->
+    <div id="modal-add-location" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAddLocationModal()" style="align-self: flex-end; cursor: pointer; font-size: 24px;">&times;</span>
+            <h3>Tambah Lokasi Baru</h3>
+            <form id="formAddLocation" onsubmit="submitNewLocation(event)">
+                <div class="form-group">
+                    <label class="form-label">Nama Lokasi <span class="required">*</span></label>
+                    <input type="text" name="location_name" class="form-control" placeholder="Contoh: Ruang Server, Lobby" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kode Lokasi <span class="required">*</span></label>
+                    <input type="text" name="location_code" class="form-control" placeholder="Contoh: SRV, LBY" required maxlength="5" style="text-transform: uppercase;">
+                    <small class="form-hint">Maksimal 5 karakter huruf.</small>
+                </div>
+                <button type="submit" class="btn btn-submit" style="width: 100%; justify-content: center; margin-top: 10px;">Simpan Lokasi</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Logic Modal Tambah Kategori
+        function openAddCategoryModal() {
+            const deptSelect = document.getElementById('deptSelect');
+            if (!deptSelect.value) {
+                alert('Silakan pilih Maingroup terlebih dahulu.');
+                return;
+            }
+            document.getElementById('addCatDeptId').value = deptSelect.value;
+            document.getElementById('addCatDeptName').value = deptSelect.options[deptSelect.selectedIndex].text;
+            document.getElementById('modal-add-category').style.display = 'block';
+        }
+        function closeAddCategoryModal() {
+            document.getElementById('modal-add-category').style.display = 'none';
+        }
+
+        // Logic Modal Tambah Lokasi
+        function openAddLocationModal() {
+            document.getElementById('modal-add-location').style.display = 'block';
+        }
+        function closeAddLocationModal() {
+            document.getElementById('modal-add-location').style.display = 'none';
+        }
+
+        function submitNewCategory(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            fetch('/api/add-category', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Tambahkan ke dropdown dan pilih otomatis
+                    const select = document.getElementById('catSelect');
+                    const option = document.createElement('option');
+                    option.value = data.id;
+                    option.text = data.name;
+                    option.setAttribute('data-dept', data.department_id);
+                    option.setAttribute('data-code', data.code);
+                    option.selected = true;
+                    select.appendChild(option);
+                    select.disabled = false; // Pastikan dropdown aktif
+                    
+                    alert('Subgroup berhasil ditambahkan!');
+                    closeAddCategoryModal();
+                    e.target.reset();
+                } else {
+                    alert('Gagal menyimpan: ' + data.message);
+                }
+            })
+            .catch(error => alert('Terjadi kesalahan koneksi: ' + error));
+        }
+
+        function submitNewLocation(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            fetch('/api/add-location', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Tambahkan ke dropdown dan pilih otomatis
+                    const select = document.getElementById('locSelect');
+                    const option = document.createElement('option');
+                    option.value = data.id;
+                    option.text = data.name;
+                    option.setAttribute('data-code', data.code);
+                    option.selected = true;
+                    select.appendChild(option);
+                    
+                    alert('Lokasi berhasil ditambahkan!');
+                    closeAddLocationModal();
+                    e.target.reset();
+                } else {
+                    alert('Gagal menyimpan: ' + data.message);
+                }
+            })
+            .catch(error => alert('Terjadi kesalahan koneksi: ' + error));
+        }
+    </script>
+
+    <script src="{{ url_for('static', filename='tambah-data.js') }}"></script>
 </body>
 </html>

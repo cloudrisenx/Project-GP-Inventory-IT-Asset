@@ -4,292 +4,158 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Tabel Asset IT - Griya Persada</title>
-    <style>
-        /* --- WARNA BRAND --- */
-        :root {
-            --gp-green: #2A6546;
-            --gp-orange: #E77937;
-            --gp-black: #1A1917;
-            --gp-accent: #5E5E55;
-            --gp-red: #e74c3c;
-            --bg-body: #F0F4F2;
-            --white: #FFFFFF;
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <!-- CSS EKSTERNAL -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='edit-tabel.css') }}">
+
+    <!-- Membaca Tema dari LocalStorage (Agar otomatis ikut halaman depan) -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
         }
-
-        /* --- RESET DASAR --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--gp-black);
-        }
-
-        /* --- NAVIGASI ATAS --- */
-        .top-navbar {
-            background-color: var(--white);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .btn-back {
-            text-decoration: none;
-            color: var(--gp-green);
-            font-weight: 800;
-            font-size: 14px;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-back:hover { color: var(--gp-orange); }
-
-        /* --- AREA KONTEN & TABEL --- */
-        .main-content { padding: 30px; }
-
-        .table-card {
-            background: var(--white);
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-            overflow-x: auto;
-        }
-
-        .gp-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 13.5px;
-        }
-
-        .gp-table thead tr {
-            background-color: var(--gp-black); /* Dibedakan warnanya untuk mode Edit */
-            color: var(--white);
-        }
-
-        .gp-table th {
-            padding: 16px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .gp-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #E2E8F0;
-            vertical-align: middle;
-        }
-
-        .gp-table tbody tr:hover { background-color: #F8FAF9; }
-
-        /* --- BADGE & BARCODE --- */
-        .status-badge {
-            background-color: #E2E8F0;
-            color: #334155;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .barcode-text {
-            display: inline-block;
-            background: #F1F5F9;
-            padding: 6px 10px;
-            border: 1px solid #CBD5E1;
-            border-radius: 4px;
-            font-weight: bold;
-            font-family: monospace;
-            font-size: 14px;
-        }
-
-        /* --- TOMBOL AKSI --- */
-        .action-btns {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-action {
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--white);
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .btn-edit { background: var(--gp-orange); }
-        .btn-edit:hover { background: #d66b2d; }
-        
-        .btn-delete { background: var(--gp-red); }
-        .btn-delete:hover { background: #c0392b; }
-
-        /* --- MODAL POPUP EDIT --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-            backdrop-filter: blur(3px);
-        }
-
-        .modal-container {
-            background: var(--white);
-            width: 90%;
-            max-width: 800px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            background: var(--gp-orange);
-            color: var(--white);
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 { margin: 0; font-size: 16px; letter-spacing: 1px; }
-        .close-btn { font-size: 24px; cursor: pointer; line-height: 1; }
-
-        .modal-body {
-            padding: 24px;
-            overflow-y: auto;
-        }
-
-        /* Form Grid di dalam Modal */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group.full-width { grid-column: span 2; }
-        .form-label { font-size: 11px; font-weight: bold; color: var(--gp-accent); text-transform: uppercase; }
-        
-        .form-control {
-            padding: 10px 12px;
-            border: 1px solid #CBD5E1;
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: inherit;
-            background-color: #F8FAF9;
-        }
-        .form-control:focus { outline: none; border-color: var(--gp-orange); background-color: var(--white); }
-        textarea.form-control { resize: vertical; min-height: 80px; }
-
-        .modal-footer {
-            padding: 15px 24px;
-            background: #FAFAFA;
-            border-top: 1px solid #F1F5F9;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .btn-save { background: var(--gp-green); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .btn-cancel { background: transparent; color: var(--gp-accent); border: 1px solid #CBD5E1; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-
-    </style>
+    </script>
 </head>
 <body>
 
     <!-- DATA STORE AMAN -->
-   <div id="safe-json-data" style="display: none;">{{ assets_json | safe }}</div>
+    <div id="safe-json-data" style="display: none;">{{ assets_json | safe }}</div>
 
     <nav class="top-navbar">
-        <a href="/" class="btn-back">← KEMBALI KE DASHBOARD</a>
-        <div style="font-weight: 800; color: var(--gp-black); letter-spacing: 1px;">MODE MANAJEMEN DATA</div>
+        <div class="nav-brand" style="display: flex; align-items: center; gap: 12px;">
+            <span class="brand-logo" style="display: flex; align-items: center; justify-content: center;">GP</span>
+            <div class="brand-info" style="display: flex; flex-direction: column; justify-content: center;">
+                <span class="brand-title" style="line-height: 1.2; font-weight: 700; font-size: 15px;">Asset Management</span>
+                <span class="brand-subtitle" style="line-height: 1.2; font-size: 11px; color: var(--text-muted);">Edit Mode</span>
+            </div>
+        </div>
+        <a href="/" class="btn-back">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Dashboard
+        </a>
     </nav>
 
     <main class="main-content">
-        <div class="table-card">
-            <table class="gp-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Kategori</th>
-                        <th>Barcode</th>
-                        <th>Nama Asset</th>
-                        <th>Status</th>
-                        <th>Lokasi</th>
-                        <th>Manajemen Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in assets %}
-                    <tr>
-                        <td style="font-weight: bold; color: var(--gp-accent);">{{ loop.index }}</td>
-                        <td><span style="font-weight: bold;">{{ item.category_name or '-' }}</span></td>
-                        <td><div class="barcode-text">{{ item.barcode }}</div></td>
-                        <td style="color: var(--gp-green); font-weight: bold;">{{ item.product_name }}</td>
-                        <td><span class="status-badge">{{ item.status_name or 'N/A' }}</span></td>
-                        <td>{{ item.lokasi_full or '-' }}</td>
-                        <td>
-                            <div class="action-btns">
-                                <!-- PERBAIKAN: Menambahkan tanda kutip agar terhindar dari error JS saat nilai kosong -->
-                                <button class="btn-action btn-edit" onclick="openEditModal('{{ item.asset_id }}')">✏️ Edit</button>
-                                
-                                <!-- Form untuk Menghapus Data -->
-                                <form action="/hapus-data/{{ item.asset_id }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus aset ini secara permanen?');">
-                                    <button type="submit" class="btn-action btn-delete">🗑️ Hapus</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+        <div class="header-section" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+            <h1 style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0;">Data Inventaris IT</h1>
+            <p style="color: var(--text-muted); font-size: 14px; margin: 0;">Kelola semua aset digital dan perangkat keras perusahaan.</p>
+        </div>
+
+        <!-- PERBAIKAN NOTIFIKASI BERHASIL / GAGAL -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'success' %}
+                        <div style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; font-size: 14px; font-weight: 600; background: rgba(52, 211, 153, 0.2); color: #064E3B; border: 1px solid #34D399;">
+                            {{ message }}
+                        </div>
                     {% else %}
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px; color: var(--gp-accent);">
-                            Belum ada data asset yang terdaftar.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        <div style="padding: 12px 16px; margin-bottom: 20px; border-radius: 8px; font-size: 14px; font-weight: 600; background: rgba(220, 38, 38, 0.2); color: #7F1D1D; border: 1px solid #DC2626;">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="gp-table">
+                    <thead>
+                        <tr>
+                            <th width="50" class="text-center">No</th>
+                            <th>Nama Asset</th>
+                            <th width="200" class="text-center">Kategori / Dept</th>
+                            <th width="180" class="text-center">Barcode / SN</th>
+                            <th>Lokasi</th>
+                            <th width="100" class="text-center">Status</th>
+                            <th width="120" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in assets %}
+                        <tr>
+                            <td class="col-no">{{ loop.index }}</td>
+                            <td>
+                                <div class="product-info">
+                                    <span class="text-product">{{ item.product_name }}</span>
+                                    <span class="text-meta">{{ item.manufacturer }} {{ item.model }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="category-wrapper">
+                                    <span class="category-pill">{{ item.category_name or '-' }}</span>
+                                    <span class="dept-text">{{ item.department_full or item.department_name or '-' }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="barcode-wrapper">
+                                    <span class="barcode-badge">{{ item.barcode }}</span>
+                                    {% if item.serial_number %}
+                                        <small class="sn-text">{{ item.serial_number }}</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ item.lokasi_full or '-' }}</td>
+                            <td class="text-center">
+                                <span class="status-badge" data-status="{{ item.status_name }}">
+                                    {{ item.status_name or 'N/A' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <!-- PASTIKAN MENGIRIM ASSET ID -->
+                                    <button type="button" class="btn-icon btn-edit" onclick="openEditModal('{{ item.asset_id }}')" title="Edit Data">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </button>
+                                    
+                                    <form action="/hapus-data/{{ item.asset_id }}" method="POST" onsubmit="return confirm('Hapus aset ini permanen?');" style="display: inline-flex;">
+                                        <button type="submit" class="btn-icon btn-delete" title="Hapus Permanen">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center" style="padding: 30px; color: #6B7280;">Belum ada data asset yang terdaftar.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
-    <!-- MODAL EDIT DATA -->
+    <!-- MODAL EDIT DATA (MENGGUNAKAN STRUKTUR ASLI ANDA) -->
     <div class="modal-overlay" id="modal-edit" onclick="closeEditModal()">
         <div class="modal-container" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h3>PERBARUI DATA ASSET</h3>
+                <div class="header-text">
+                    <h3>Perbarui Data Asset</h3>
+                    <p>Ubah detail informasi asset di bawah ini.</p>
+                </div>
                 <span class="close-btn" onclick="closeEditModal()">&times;</span>
             </div>
             
-            <form action="/update-data" method="POST">
+            <form action="/update-data" method="POST" class="modal-form-layout">
                 <div class="modal-body">
-                    <!-- ID Tersembunyi untuk referensi update di PostgreSQL -->
+                    <!-- INPUT HIDDEN UNTUK ASSET ID (PENTING AGAR BISA DI UPDATE) -->
                     <input type="hidden" name="asset_id" id="edit_asset_id">
 
+                    <!-- SECTION 1: IDENTITAS PRODUK -->
+                    <div class="form-section-label">1. Identitas Asset</div>
                     <div class="form-grid">
                         <div class="form-group full-width">
-                            <label class="form-label">Nama Asset / Produk *</label>
+                            <label class="form-label">Nama Asset / Produk <span class="text-red">*</span></label>
                             <input type="text" name="product_name" id="edit_product_name" class="form-control" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Barcode / ID Unik</label>
-                            <input type="text" name="barcode" id="edit_barcode" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Serial Number</label>
-                            <input type="text" name="serial_number" id="edit_serial_number" class="form-control">
-                        </div>
+                        
                         <div class="form-group">
                             <label class="form-label">Model / Tipe</label>
                             <input type="text" name="model" id="edit_model" class="form-control">
@@ -298,17 +164,66 @@
                             <label class="form-label">Pabrikan / Merk</label>
                             <input type="text" name="manufacturer" id="edit_manufacturer" class="form-control">
                         </div>
+
+                        <!-- Barcode dengan Opsi Auto -->
+                        <div class="form-group full-width">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label class="form-label">Barcode / Tag ID <span class="text-red">*</span></label>
+                                
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 13px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--primary); font-weight: 600;">
+                                        <input type="checkbox" id="autoBarcodeToggle"> Auto TagID
+                                    </label>
+                                    <button type="button" class="btn-setting-icon" onclick="openBarcodeSettings()" title="Pengaturan Format TagID">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-icon-wrapper">
+                                <span class="input-icon">#</span>
+                                <input type="text" name="barcode" id="edit_barcode" class="form-control code-font" placeholder="Masukkan manual atau centang Auto" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">Serial Number (SN)</label>
+                            <input type="text" name="serial_number" id="edit_serial_number" class="form-control code-font">
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: KLASIFIKASI -->
+                    <div class="form-section-label">2. Departemen & Klasifikasi</div>
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label">Kategori *</label>
-                            <select name="category_id" id="edit_category_id" class="form-control" required>
-                                <option value="">-- Pilih --</option>
-                                {% for cat in categories %}
-                                    <option value="{{ cat.category_id }}">{{ cat.name }}</option>
+                            <label class="form-label">Departemen Pemilik <span class="text-red">*</span></label>
+                            <select name="department_id" id="edit_department_id" class="form-control" required>
+                                <option value="" data-code="">-- Pilih --</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.department_id }}" data-code="{{ dept.code }}">{{ dept.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Kondisi / Status *</label>
+                            <label class="form-label">Kategori <span class="text-red">*</span></label>
+                            <select name="category_id" id="edit_category_id" class="form-control" required disabled>
+                                <option value="" data-code="">-- Pilih Departemen Dahulu --</option>
+                                {% for cat in categories %}
+                                    <!-- WAJIB PASTIKAN APP.PY MENGIRIM data-dept -->
+                                    <option value="{{ cat.category_id }}" data-dept="{{ cat.department_id }}" data-code="{{ cat.code }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lokasi Penempatan <span class="text-red">*</span></label>
+                            <select name="location_id" id="edit_location_id" class="form-control" required>
+                                <option value="" data-code="">-- Pilih --</option>
+                                {% for loc in locations %}
+                                    <option value="{{ loc.location_id }}" data-code="{{ loc.code }}">{{ loc.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status Kondisi <span class="text-red">*</span></label>
                             <select name="status_id" id="edit_status_id" class="form-control" required>
                                 <option value="">-- Pilih --</option>
                                 {% for stat in statuses %}
@@ -316,14 +231,14 @@
                                 {% endfor %}
                             </select>
                         </div>
+                    </div>
+
+                    <!-- SECTION 3: PEMBELIAN & SPECS -->
+                    <div class="form-section-label">3. Nilai & Spesifikasi</div>
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label">Lokasi Penempatan *</label>
-                            <select name="location_id" id="edit_location_id" class="form-control" required>
-                                <option value="">-- Pilih --</option>
-                                {% for loc in locations %}
-                                    <option value="{{ loc.location_id }}">{{ loc.site_name }} - {{ loc.room_name }}</option>
-                                {% endfor %}
-                            </select>
+                            <label class="form-label">Tanggal Pembelian</label>
+                            <input type="date" name="purchase_date" id="edit_purchase_date" class="form-control">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Supplier / Vendor</label>
@@ -334,85 +249,62 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Tanggal Pembelian</label>
-                            <input type="date" name="purchase_date" id="edit_purchase_date" class="form-control">
-                        </div>
+                        
                         <div class="form-group">
                             <label class="form-label">Harga Beli (Rp)</label>
-                            <input type="number" name="purchase_cost" id="edit_purchase_cost" class="form-control" step="0.01">
+                            <div class="input-icon-wrapper">
+                                <span class="input-icon">Rp</span>
+                                <input type="number" name="purchase_cost" id="edit_purchase_cost" class="form-control" step="0.01">
+                            </div>
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">Perkiraan Usia (Bulan)</label>
+                            <input type="number" name="age_asset" id="edit_age_asset" class="form-control" placeholder="Contoh: 60">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Quantity (Unit)</label>
+                            <input type="number" name="qty" id="edit_qty" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Masa Garansi</label>
+                            <input type="text" name="warranty_info" id="edit_warranty_info" class="form-control">
+                        </div>
+                        
                         <div class="form-group full-width">
-                            <label class="form-label">Spesifikasi Teknis </label>
-                            <textarea name="specs" id="edit_specs" class="form-control"></textarea>
+                            <label class="form-label">Keterangan / Catatan Tambahan</label>
+                            <textarea name="keterangan" id="edit_keterangan" class="form-control" style="min-height: 120px; padding-top: 10px;"></textarea>
                         </div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Batal</button>
-                    <button type="submit" class="btn-save">Simpan Perubahan</button>
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-save">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Simpan Perubahan
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
-        // 1. Ekstraksi Data Aman
-        let assetData = [];
-        try {
-            const rawText = document.getElementById('safe-json-data').textContent;
-            if(rawText && rawText.trim() !== "") {
-                assetData = JSON.parse(rawText);
-            }
-        } catch (error) {
-            console.error("Gagal membaca data JSON:", error);
-        }
+    <!-- MODAL PENGATURAN BARCODE -->
+    <div id="modal-barcode-settings" class="modal" style="z-index: 1001; display: none;">
+        <div class="modal-content" style="max-width: 400px; padding: 24px;">
+            <span class="modal-close" style="float:right; cursor:pointer; font-size: 24px;" onclick="closeBarcodeSettings()">&times;</span>
+            <h3 style="margin-top:0; font-family: 'Plus Jakarta Sans', sans-serif;">Format Auto TagID</h3>
+            <div class="form-group" style="margin-top: 20px;">
+                <label class="form-label">Kode Hotel (Akhiran)</label>
+                <input type="text" id="hotelCodeInput" class="form-control" value="GPB" placeholder="Contoh: GPB">
+            </div>
+            <button type="button" class="btn-save" style="width: 100%; margin-top: 20px; justify-content: center;" onclick="closeBarcodeSettings()">Selesai</button>
+        </div>
+    </div>
 
-        // 2. Fungsi Buka Modal Edit
-        function openEditModal(asset_id) {
-            // PERBAIKAN: Gunakan '==' agar String '1' (dari HTML) bisa cocok dengan Integer 1 (dari DB)
-            const data = assetData.find(a => a.asset_id == asset_id);
-            if (!data) return;
-
-            // Masukkan data ke dalam form input menggunakan ID HTML
-            document.getElementById('edit_asset_id').value = data.asset_id;
-            document.getElementById('edit_product_name').value = data.product_name || '';
-            document.getElementById('edit_barcode').value = data.barcode || '';
-            document.getElementById('edit_serial_number').value = data.serial_number || '';
-            document.getElementById('edit_model').value = data.model || '';
-            document.getElementById('edit_manufacturer').value = data.manufacturer || '';
-            
-            // Dropdowns (Set value sesuai ID di database)
-            document.getElementById('edit_category_id').value = data.category_id || '';
-            document.getElementById('edit_status_id').value = data.status_id || '';
-            document.getElementById('edit_location_id').value = data.location_id || '';
-            document.getElementById('edit_supplier_id').value = data.supplier_id || '';
-            
-            document.getElementById('edit_purchase_cost').value = data.purchase_cost || '';
-
-            // Handle Spesifikasi (Langsung tampilkan text apa adanya)
-            document.getElementById('edit_specs').value = data.specs || '';
-
-            // Handle format Tanggal (Input HTML Date butuh format YYYY-MM-DD)
-            // Python PostgreEncoder mengubahnya jadi DD-MM-YYYY, jadi kita harus membaliknya
-            if (data.purchase_date) {
-                const parts = data.purchase_date.split('-');
-                if(parts.length === 3) {
-                    // parts = [DD, MM, YYYY] -> diubah ke YYYY-MM-DD
-                    document.getElementById('edit_purchase_date').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                }
-            } else {
-                document.getElementById('edit_purchase_date').value = '';
-            }
-
-            // Tampilkan Modal
-            document.getElementById('modal-edit').style.display = 'flex';
-        }
-
-        // 3. Fungsi Tutup Modal
-        function closeEditModal() {
-            document.getElementById('modal-edit').style.display = 'none';
-        }
-    </script>
+    <script src="{{ url_for('static', filename='edit-tabel.js') }}"></script>
 </body>
 </html>

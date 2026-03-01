@@ -4,132 +4,519 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Inventaris IT - Griya Persada</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
     <!-- Library QR Code -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <!-- PANGGIL CSS DARI FOLDER STATIC -->
-    <link rel="stylesheet" href="static/style.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='tabel.css') }}">
+
+    <!-- Script Pembaca Tema: Akan otomatis menyesuaikan dengan yang dipilih di Index -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
 </head>
 <body>
 
-    <!-- DATA STORE AMAN (Diisi oleh Jinja2 Backend) -->
+    <!-- DATA STORE UNTUK JAVASCRIPT -->
     <div id="safe-json-data" style="display: none;">{{ assets_json }}</div>
 
+    <!-- NAVBAR -->
     <nav class="top-navbar">
-        <a href="/" class="btn-back">← KEMBALI KE DASHBOARD</a>
-        <div class="nav-buttons">
-            <button class="btn-action" id="btn-toggle-qr" onclick="toggleQR()">Tampilkan QR Code</button>
-            <button class="btn-action" onclick="window.print()">Cetak PDF</button>
+        <div class="nav-brand">
+            <span class="brand-logo">GP</span>
+            <div class="brand-info">
+                <span class="brand-title">Inventory Asset</span>
+                <span class="brand-subtitle">IT Department</span>
+            </div>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-action btn-hamburger" onclick="toggleSidebar()" style="margin-right: 8px; padding: 8px 12px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <span style="display: none;">Menu</span>
+            </button>
+            <a href="/" class="btn-back">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Dashboard Utama
+            </a>
         </div>
     </nav>
 
+    <!-- KONTEN UTAMA -->
     <main class="main-content">
+        <div class="content-header">
+            <div>
+                <h1>Database Asset IT</h1>
+                <p>Kelola dan pantau seluruh perangkat IT perusahaan</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-action" onclick="toggleFilterPanel()" title="Tampilkan/Sembunyikan Filter">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    <span>Filter</span>
+                </button>
+                <button class="btn-action btn-primary" onclick="toggleQR()" id="menu-toggle-qr">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
+                    <span>Tampilkan QR</span>
+                </button>
+            </div>
+        </div>
+
         <div class="table-card">
-            <table class="gp-table" id="asset-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Kategori</th>
-                        <th style="text-align: center;">Barcode / QR</th>
-                        <th>Nama Asset</th>
-                        <th>Status</th>
-                        <th>Lokasi</th>
-                        <th>Supplier</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in assets %}
-                    <tr>
-                        <td style="font-weight: bold; color: var(--gp-accent);">{{ loop.index }}</td>
-                        <td><span style="font-weight: bold;">{{ item.category_name or '-' }}</span></td>
-                        <td style="text-align: center; width: 150px;">
-                            <div class="barcode-text">{{ item.barcode }}</div>
-                            <div class="qr-box" onclick="zoomQR('{{ item.barcode }}')" title="Klik untuk perbesar QR">
-                                <div class="qr-render" data-code="{{ item.barcode }}"></div>
-                                <span style="font-size: 11px; font-weight: bold;">{{ item.barcode }}</span>
-                            </div>
-                        </td>
-                        <td style="color: var(--gp-green); font-weight: bold;">{{ item.product_name }}</td>
-                        <td><span class="status-badge">{{ item.status_name or 'N/A' }}</span></td>
-                        <td>{{ item.lokasi_full or '-' }}</td>
-                        <td>
-                            {% if item.supplier_name %}
-                                <a href="javascript:void(0)" 
-                                    onclick="openSupplierModal('{{ item.barcode }}')"
-                                    class="link-vendor">
-                                    {{ item.supplier_name }}
-                                </a>
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                        <td>
-                            <button class="btn-detail" onclick="openModal('{{ item.barcode }}')">Detail</button>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 30px; color: var(--gp-accent);">
-                            Belum ada data asset yang terdaftar.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- BARIS FILTER LANGSUNG (INLINE FILTER) -->
+            <div class="filter-bar filter-hidden" id="filter-panel">
+                <span class="filter-label">Filter Data:</span>
+                <select id="filter-dept" class="form-select">
+                    <option value="">Semua Departemen</option>
+                </select>
+                <select id="filter-loc" class="form-select">
+                    <option value="">Semua Lokasi</option>
+                </select>
+                <select id="filter-cat" class="form-select">
+                    <option value="">Semua Kategori</option>
+                </select>
+                <select id="filter-vendor" class="form-select">
+                    <option value="">Semua Vendor</option>
+                </select>
+                <button class="btn-reset-filter" onclick="resetAllFilters()" title="Reset semua filter">Reset</button>
+                <div id="grand-total-container" style="margin-left: auto; display: flex; align-items: center; gap: 6px; background: var(--surface); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);">
+                    <span class="filter-label" style="margin: 0;">Grand Total:</span>
+                    <span id="grand-total-display" style="font-weight: 800; color: var(--primary);">Rp 0</span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="asset-table" class="gp-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Info Produk</th>
+                            <th class="text-center">Kategori & Dept</th>
+                            <th class="td-barcode text-center">Barcode / QR</th>
+                            <th class="text-center">Depresiasi</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set ns = namespace(grand_total=0) %}
+                        {% for group in assets|groupby('department_full') %}
+                        {% set dept_total = namespace(value=0) %}
+                        {% for item in group.list %}
+                        {% set cost = item.current_value if item.current_value else 0 %}
+                        {% set dept_total.value = dept_total.value + cost %}
+                        {% set ns.grand_total = ns.grand_total + cost %}
+                        <tr class="asset-row" 
+                            data-kategori="{{ item.category_name if item.category_name else '' }}" 
+                            data-departemen="{{ item.department_full if item.department_full else '' }}" 
+                            data-lokasi="{{ item.lokasi_full if item.lokasi_full else '' }}"
+                            data-vendor="{{ item.supplier_name if item.supplier_name else '' }}">
+                            
+                            <td class="col-no">{{ loop.index }}</td>
+                            <td>
+                                <div class="product-info">
+                                    <span class="product-name product-text">{{ item.product_name }}</span>
+                                    <span class="product-meta">SN: {{ item.serial_number if item.serial_number else '-' }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="product-info" style="align-items: center;">
+                                    <span class="category-pill">{{ item.category_name if item.category_name else 'Tanpa Kategori' }}</span>
+                                    <span class="product-meta" style="margin-top: 4px;">{{ item.department_full if item.department_full else '-' }}</span>
+                                </div>
+                            </td>
+                            <td class="td-barcode text-center">
+                                <div class="barcode-wrapper">
+                                    <span class="barcode-text">{{ item.barcode }}</span>
+                                    <div class="qr-box" onclick="zoomQR('{{ item.barcode }}')">
+                                        <div class="qr-render" data-code="{{ item.barcode }}"></div>
+                                        <span class="qr-label">ZOOM</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="row-price" data-price="{{ item.current_value }}">Rp {{ "{:,.0f}".format(item.current_value) }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="status-badge bg-neutral" style="font-size: 12px; padding: 6px 12px;">{{ item.qty if item.qty else '0' }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="status-badge 
+                                    {% if item.status_name == 'Aktif' or item.status_name == 'Baik' %} bg-success 
+                                    {% elif item.status_name == 'Rusak' %} bg-danger 
+                                    {% else %} bg-warning {% endif %}">
+                                    {{ item.status_name if item.status_name else '-' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <button class="btn-detail" onclick="openModal('{{ item.barcode }}')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span>Detail</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <!-- BARIS SUBTOTAL PER DEPARTEMEN -->
+                        <tr class="subtotal-row" data-departemen="{{ group.grouper if group.grouper else '' }}" style="background-color: var(--surface-hover); font-weight: 700; color: var(--text-main);">
+                            <td colspan="4" style="text-align: right; padding-right: 24px;">Total {{ group.grouper if group.grouper else 'Lain-lain' }}:</td>
+                            <td class="text-center" style="color: var(--primary);">Rp {{ "{:,.0f}".format(dept_total.value) }}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="empty-row">Belum ada data asset dalam sistem.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <!-- FOOTER GRAND TOTAL -->
+                    <tfoot>
+                        <tr class="grand-total-row">
+                            <td colspan="4" style="text-align: right; padding-right: 24px;">GRAND TOTAL ASET:</td>
+                            <td class="text-center" id="footer-grand-total">Rp {{ "{:,.0f}".format(ns.grand_total) }}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </main>
 
-    <!-- Modal Popup Profil Supplier/Vendor -->
-    <div class="modal-overlay" id="modal-supplier" style="z-index: 9999; display: none;" onclick="closeSupplierModal()">
-        <div class="vendor-modal-container" onclick="event.stopPropagation()">
-            <!-- Header -->
-            <div class="vendor-header"> 
-                <div class="vendor-title">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    PROFIL VENDOR
-                </div>
-                <button class="btn-close-header" type="button" onclick="closeSupplierModal()">&times;</button>
-            </div>
-            
-            <!-- Body -->
-            <div class="vendor-body" id="modal-supplier-content"></div>
-
-            <!-- Footer -->
-            <div class="vendor-footer" id="modal-supplier-footer"></div>
-        </div>
-    </div>
-
-    <!-- Modal Popup Detail (Informasi Lengkap) -->
+    <!-- MODAL DETAIL ASSET (Utama) -->
     <div class="modal-overlay" id="modal-detail" onclick="closeModal()">
         <div class="modal-container" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h3>INFORMASI ASSET LENGKAP</h3>
-                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <div class="header-text">
+                    <h3>Informasi Lengkap Asset</h3>
+                    <p>Detail spesifikasi dan riwayat perangkat</p>
+                </div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div class="modal-body detail-grid" id="modal-content-area"></div>
+            <div class="modal-body" id="modal-content-area">
+                <!-- Konten di-inject oleh tabel.js -->
+            </div>
         </div>
     </div>
 
-    <!-- Modal Popup QR Code -->
-    <div class="modal-overlay" id="modal-qr" onclick="closeQRModal()">
-        <div class="modal-container" style="max-width: 380px;" onclick="event.stopPropagation()">
+    <!-- MODAL SUPPLIER / VENDOR -->
+    <div class="modal-overlay" id="modal-supplier" onclick="closeSupplierModal()">
+        <div class="modal-container sm-modal" onclick="event.stopPropagation()">
+            <div class="modal-header bg-primary">
+                <div class="header-text">
+                    <h3 style="color: white;">Informasi Vendor</h3>
+                </div>
+                <button class="close-btn text-white" onclick="closeSupplierModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-supplier-content"></div>
+            <div class="modal-footer" id="modal-supplier-footer"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CETAK MASSAL -->
+    <div class="modal-overlay" id="modal-bulk-print" onclick="closeBulkPrintModal()">
+        <div class="modal-container sm-modal" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h3>QR CODE ASSET</h3>
-                <span class="close-btn" onclick="closeQRModal()">&times;</span>
+                <div class="header-text">
+                    <h3>Cetak QR Code Massal</h3>
+                    <p>Cetak berdasarkan rentang urutan data</p>
+                </div>
+                <button class="close-btn" onclick="closeBulkPrintModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="data-group">
+                        <label class="data-label">Mulai dari baris ke-</label>
+                        <input type="number" id="print-start" class="form-select" value="1" min="1">
+                    </div>
+                    <div class="data-group">
+                        <label class="data-label">Sampai baris ke-</label>
+                        <input type="number" id="print-end" class="form-select" value="10" min="1">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" onclick="closeBulkPrintModal()">Batal</button>
+                <button class="btn-action btn-primary" onclick="executeBulkPrint()">Proses Cetak</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL QR ZOOM -->
+    <div class="modal-overlay" id="modal-qr" onclick="closeQRModal()">
+        <div class="modal-container xs-modal" onclick="event.stopPropagation()">
+            <div class="modal-header bg-primary">
+                <h3 style="color: white; margin: 0; font-size: 16px;">QR Code Besar</h3>
+                <button class="close-btn text-white" onclick="closeQRModal()">&times;</button>
             </div>
             <div class="modal-body qr-zoom-body">
                 <div id="large-qr-render"></div>
-                <div>
+                <div class="qr-info">
                     <h2 id="large-qr-text"></h2>
-                    <h4 id="large-qr-product"></h4>
+                    <h4 id="large-qr-product" style="display: none;"></h4>
                 </div>
-                <button class="btn-action btn-print-qr" onclick="printOnlyQR()">🖨️ Cetak QR Saja</button>
+                <button class="btn-action btn-primary full-width" onclick="printOnlyQR()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2z"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Cetak Code Ini
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- PANGGIL JS DARI FOLDER STATIC -->
-    <script src="static/tabel.js"></script>
+    <!-- SIDEBAR MENU (HAMBURGER) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="main-sidebar">
+        <div class="sidebar-header">
+            <h3>Menu Opsi</h3>
+            <button class="close-sidebar" onclick="toggleSidebar()">&times;</button>
+        </div>
+        <div class="sidebar-content">
+            <button class="sidebar-item" onclick="toggleTotals(); toggleSidebar();" title="Tampilkan/Sembunyikan Total">
+                <span class="icon">💰</span> <span class="sidebar-text">Total & Grand Total</span>
+            </button>
+            <button class="sidebar-item" onclick="openBulkPrintModal(); toggleSidebar();" title="Cetak QR Massal">
+                <span class="icon">🖨️</span> <span class="sidebar-text">Cetak QR Massal</span>
+            </button>
+            <button class="sidebar-item" onclick="openFixBarcodeModal(); toggleSidebar();" title="Cek & Update Barcode">
+                <span class="icon">🔄</span> <span class="sidebar-text">Cek & Update Barcode</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL CEK & UPDATE BARCODE -->
+    <div class="modal-overlay" id="modal-fix-barcode" onclick="closeFixBarcodeModal()">
+        <div class="modal-container sm-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="header-text">
+                    <h3>Cek & Update Barcode</h3>
+                    <p>Perbarui format barcode asset secara otomatis.</p>
+                </div>
+                <button class="close-btn" onclick="closeFixBarcodeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- OPSI 1: UPDATE SEMUA -->
+                <div style="background: var(--surface-hover); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border);">
+                    <h4 style="margin: 0 0 8px 0; font-size: 14px;">Update Massal</h4>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 10px 0;">Regenerate ulang seluruh barcode asset di database sesuai format lokasi/kategori terbaru.</p>
+                    <button class="btn-action btn-primary full-width" onclick="executeBulkFixBarcode(this)">Update Semua Asset</button>
+                </div>
+
+                <!-- OPSI 2: CARI SATUAN -->
+                <h4 style="margin: 0 0 8px 0; font-size: 14px;">Cari & Update Satuan</h4>
+                <input type="text" id="search-fix-input" class="form-select" placeholder="Ketik nama asset..." onkeyup="searchFixAsset()" style="margin-bottom: 10px;">
+                <div id="fix-results-list" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTAINER TERSEMBUNYI UNTUK CETAK MASSAL -->
+    <div id="bulk-print-container"></div>
+
+    <script src="{{ url_for('static', filename='tabel.js') }}"></script>
+    <script>
+        // --- SIDEBAR LOGIC ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // --- FIX BARCODE LOGIC ---
+        function openFixBarcodeModal() {
+            document.getElementById('modal-fix-barcode').style.display = 'flex';
+            document.getElementById('search-fix-input').value = '';
+            document.getElementById('fix-results-list').innerHTML = '<p class="text-muted" style="text-align:center;">Ketik nama asset di atas...</p>';
+            document.getElementById('search-fix-input').focus();
+        }
+
+        function closeFixBarcodeModal() {
+            document.getElementById('modal-fix-barcode').style.display = 'none';
+        }
+
+        function searchFixAsset() {
+            const query = document.getElementById('search-fix-input').value.toLowerCase();
+            const listContainer = document.getElementById('fix-results-list');
+            
+            if (query.length < 2) {
+                listContainer.innerHTML = '<p class="text-muted" style="text-align:center;">Ketik minimal 2 huruf...</p>';
+                return;
+            }
+
+            // Ambil data dari JSON yang sudah ada di halaman
+            const rawData = document.getElementById('safe-json-data').textContent;
+            const assets = JSON.parse(rawData);
+            
+            const filtered = assets.filter(item => item.product_name.toLowerCase().includes(query));
+            
+            if (filtered.length === 0) {
+                listContainer.innerHTML = '<p class="text-muted" style="text-align:center;">Tidak ditemukan.</p>';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(item => {
+                html += `
+                    <div class="fix-item" style="border:1px solid var(--border); padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; background:var(--surface);">
+                        <div>
+                            <div style="font-weight:bold; font-size:13px;">${item.product_name}</div>
+                            <div style="font-family:'JetBrains Mono'; font-size:11px; color:var(--text-muted);">${item.barcode}</div>
+                        </div>
+                        <button class="btn-action btn-primary" style="padding:4px 10px; font-size:11px;" onclick="executeFixBarcode(${item.asset_id}, this)">
+                            Update
+                        </button>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        function executeBulkFixBarcode(btnElement) {
+            if (!confirm('Apakah Anda yakin ingin memperbarui SEMUA barcode asset? Tindakan ini tidak dapat dibatalkan.')) return;
+
+            btnElement.textContent = 'Memproses...';
+            btnElement.disabled = true;
+
+            const formData = new FormData();
+            formData.append('action', 'all');
+
+            fetch('/api/regenerate-barcode', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Gagal: ' + data.message);
+                    btnElement.textContent = 'Update Semua Asset';
+                    btnElement.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Terjadi kesalahan koneksi.');
+                btnElement.textContent = 'Update Semua Asset';
+                btnElement.disabled = false;
+            });
+        }
+
+        function executeFixBarcode(assetId, btnElement) {
+            btnElement.textContent = '...';
+            btnElement.disabled = true;
+
+            const formData = new FormData();
+            formData.append('asset_id', assetId);
+
+            fetch('/api/regenerate-barcode', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btnElement.textContent = 'Sukses';
+                    btnElement.style.background = 'var(--primary)';
+                    // Update tampilan barcode di list sementara
+                    const barcodeDiv = btnElement.previousElementSibling.querySelector('div:last-child');
+                    barcodeDiv.textContent = data.new_barcode;
+                    barcodeDiv.style.color = 'var(--primary)';
+                    barcodeDiv.style.fontWeight = 'bold';
+                    alert('Barcode berhasil diperbarui menjadi:\n' + data.new_barcode);
+                    // Reload halaman agar tabel utama terupdate (opsional, tapi disarankan agar konsisten)
+                    location.reload();
+                } else {
+                    alert('Gagal: ' + data.message);
+                    btnElement.textContent = 'Gagal';
+                    btnElement.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Terjadi kesalahan koneksi.');
+                btnElement.textContent = 'Update';
+                btnElement.disabled = false;
+            });
+        }
+
+        function toggleFilterPanel() {
+            const panel = document.getElementById('filter-panel');
+            panel.classList.toggle('filter-hidden');
+        }
+
+        // --- LOGIKA GRAND TOTAL DINAMIS ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // 0. Cek status Total dari LocalStorage
+            if (localStorage.getItem('hideTotals') === 'true') {
+                document.body.classList.add('totals-hidden');
+            }
+
+            // 1. Hitung total saat halaman pertama kali dimuat
+            calculateGrandTotal();
+
+            // 2. Pasang pendengar event pada semua dropdown filter
+            const filters = document.querySelectorAll('.filter-bar select');
+            filters.forEach(select => {
+                select.addEventListener('change', function() {
+                    // Beri jeda 100ms agar script filter bawaan selesai menyembunyikan baris dulu
+                    setTimeout(calculateGrandTotal, 100);
+                });
+            });
+
+            // 3. Pasang pendengar event pada tombol reset
+            const resetBtn = document.querySelector('.btn-reset-filter');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    setTimeout(calculateGrandTotal, 100);
+                });
+            }
+        });
+
+        function calculateGrandTotal() {
+            const rows = document.querySelectorAll('#asset-table tbody tr.asset-row');
+            let total = 0;
+            
+            rows.forEach(row => {
+                // Hanya hitung baris yang terlihat (tidak di-hide oleh filter)
+                if (window.getComputedStyle(row).display !== 'none') {
+                    const priceEl = row.querySelector('.row-price');
+                    if (priceEl) {
+                        // Ambil angka murni dari atribut data-price
+                        const price = parseFloat(priceEl.getAttribute('data-price')) || 0;
+                        total += price;
+                    }
+                }
+            });
+
+            // Update tampilan Grand Total dengan format Rupiah
+            const display = document.getElementById('grand-total-display');
+            if (display) {
+                display.textContent = 'Rp ' + total.toLocaleString('id-ID');
+            }
+            
+            // Update Footer Grand Total juga agar sinkron saat difilter
+            const footerDisplay = document.getElementById('footer-grand-total');
+            if (footerDisplay) {
+                footerDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
+            }
+        }
+
+        // --- TOGGLE TOTALS ---
+        function toggleTotals() {
+            const body = document.body;
+            body.classList.toggle('totals-hidden');
+            const isHidden = body.classList.contains('totals-hidden');
+            localStorage.setItem('hideTotals', isHidden ? 'true' : 'false');
+        }
+    </script>
 </body>
 </html>

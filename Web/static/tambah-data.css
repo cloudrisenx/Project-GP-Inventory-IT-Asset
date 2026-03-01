@@ -1,0 +1,252 @@
+/* --- VARIABLES & THEME --- */
+:root {
+    /* Brand Colors */
+    --primary: #2A6546;       
+    --primary-hover: #1e4a33;
+    --accent: #E77937;        
+    --danger: #DC2626;
+    
+    /* Neutral / Surface (Light Mode) */
+    --bg-page: #F3F4F6;
+    --surface: #FFFFFF;
+    --surface-alt: #F9FAFB;
+    --border: #E5E7EB;
+    
+    /* Text */
+    --text-main: #111827;
+    --text-secondary: #4B5563;
+    --text-muted: #9CA3AF;
+    
+    /* Shapes & Shadows */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-card: 0 4px 6px -1px rgba(0,0,0,0.05);
+    --input-focus: rgba(42, 101, 70, 0.1);
+    
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* OVERRIDES: DARK MODE */
+[data-theme="dark"] {
+    --primary: #34D399;       
+    --primary-hover: #10B981;
+    --accent: #F97316;        
+    
+    --bg-page: #0B1121; /* Latar yang lebih gelap seperti desain mobile */
+    --surface: #1F2937;
+    --surface-alt: #111827;
+    --border: #374151;
+    
+    --text-main: #F9FAFB;
+    --text-secondary: #D1D5DB;
+    --text-muted: #9CA3AF;
+    
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
+    --shadow-card: 0 10px 25px -5px rgba(0,0,0,0.3);
+    --input-focus: rgba(52, 211, 153, 0.2);
+}
+
+/* --- RESET & BASE --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: var(--bg-page); 
+    color: var(--text-main);
+    line-height: 1.5;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* --- TOP NAVBAR --- */
+.top-navbar {
+    background-color: var(--surface);
+    padding: 0 32px;
+    height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+
+.brand-logo {
+    background: var(--primary); color: #111827; font-weight: 800;
+    padding: 8px 12px; border-radius: 8px; font-size: 16px;
+}
+:root .brand-logo { color: #FFFFFF; }
+[data-theme="dark"] .brand-logo { color: #111827; }
+
+.brand-info { display: flex; flex-direction: column; justify-content: center; }
+.brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 16px; color: var(--text-main); line-height: 1.2; }
+.brand-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+.btn-back {
+    text-decoration: none; color: var(--text-secondary); font-weight: 600; font-size: 13px;
+    display: flex; align-items: center; gap: 8px; padding: 8px 16px;
+    border-radius: 20px; background: var(--surface-alt); border: 1px solid var(--border);
+    transition: var(--transition);
+}
+.btn-back:hover { 
+    background: var(--surface); border-color: var(--primary);
+    color: var(--primary); transform: translateX(-2px);
+}
+
+/* --- MAIN LAYOUT --- */
+.main-content { padding: 40px 20px; max-width: 900px; margin: 0 auto; }
+.page-header { text-align: center; margin-bottom: 32px; }
+.page-header h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; transition: color 0.3s; }
+.page-header p { color: var(--text-secondary); font-size: 15px; transition: color 0.3s; }
+
+/* --- FORM CARD --- */
+.form-card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card); overflow: hidden; border: 1px solid var(--border);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.form-body { padding: 40px; }
+
+/* --- SECTIONS & GRID --- */
+.form-section { margin-bottom: 10px; }
+.section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; text-transform: uppercase;
+    letter-spacing: 0.05em; font-weight: 700; color: var(--primary); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+}
+.divider { border: 0; height: 1px; background: var(--border); margin: 32px 0; }
+
+/* LAYOUT GRID (Untuk Section Identitas, Klasifikasi, dll) */
+.form-grid { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 24px; 
+    align-items: start;
+}
+
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group.full-width { grid-column: span 2; }
+
+/* --- INPUTS, SELECTS, & LABELS --- */
+.form-label { font-size: 13px; font-weight: 600; color: var(--text-main); }
+.required { color: var(--danger); margin-left: 2px; }
+
+/* PERBAIKAN: Menggabungkan .form-control dan .form-select agar gaya identik */
+.form-control, .form-select {
+    padding: 10px 14px; height: 44px; border: 1px solid var(--border);
+    border-radius: var(--radius-md); font-size: 14px; font-family: 'Inter', sans-serif;
+    color: var(--text-main); background-color: var(--bg-page); width: 100%;
+    transition: var(--transition);
+}
+
+/* Custom panah dropdown untuk .form-select agar lebih rapi */
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239CA3AF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px top 50%;
+    background-size: 10px auto;
+    padding-right: 36px;
+}
+
+/* FIX DATE PICKER DAN SELECT DROPDOWN DI DARK MODE MENGGUNAKAN COLOR-SCHEME */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    color-scheme: dark;
+}
+
+.form-control:focus, .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--input-focus); }
+.form-control:disabled, .form-select:disabled { background-color: var(--surface-alt); cursor: not-allowed; opacity: 0.7; color: var(--text-muted); }
+.form-control::placeholder { color: #9CA3AF; }
+
+textarea.form-control { resize: vertical; min-height: 120px; height: auto; padding: 12px 14px; line-height: 1.6; }
+
+.font-code { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+.input-icon-wrapper { position: relative; }
+.input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px; font-weight: 600; }
+.input-icon-wrapper input { padding-left: 36px; }
+.form-hint { font-size: 12px; color: var(--text-muted); margin-top: -4px; }
+
+/* Setting Icon */
+.btn-setting-icon {
+    background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px;
+    transition: var(--transition);
+}
+.btn-setting-icon:hover { background: var(--border); color: var(--text-main); }
+
+/* --- FOOTER & BUTTONS --- */
+.form-footer {
+    padding: 24px 40px; background: var(--surface-alt); border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 16px; align-items: center; transition: background-color 0.3s;
+}
+
+.btn {
+    padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    transition: var(--transition); font-family: 'Inter', sans-serif;
+}
+
+/* Tombol Reset */
+.btn-reset { 
+    background: #1F2937; 
+    color: #F9FAFB; 
+    border: none; 
+}
+.btn-reset:hover { 
+    background: #374151; 
+}
+[data-theme="dark"] .btn-reset {
+    background: #374151; 
+}
+[data-theme="dark"] .btn-reset:hover {
+    background: #4B5563;
+}
+
+/* Tombol Submit */
+.btn-submit { 
+    background: #34D399; 
+    color: #064E3B; 
+    border: none; 
+}
+.btn-submit:hover { 
+    background: #10B981; 
+    transform: translateY(-1px); 
+    box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+}
+
+/* Modal Setting Barcode */
+.modal {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;
+}
+.modal-content {
+    background-color: var(--surface); padding: 24px; border-radius: 12px; width: 90%; max-width: 400px;
+    border: 1px solid var(--border); box-shadow: var(--shadow-card);
+}
+.modal-content h3 { margin-top: 0; font-family: 'Plus Jakarta Sans'; font-size: 1.2rem; color: var(--text-main); margin-bottom: 16px; }
+.modal-close { float: right; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); line-height: 1; }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 992px) {
+    .form-grid { gap: 16px; }
+}
+
+@media (max-width: 768px) {
+    .main-content { padding: 20px; }
+    .form-body { padding: 24px; }
+    .form-grid { grid-template-columns: 1fr; gap: 20px; } /* Menjadi 1 baris ke bawah di HP */
+    .form-group.full-width { grid-column: span 1; }
+    .form-footer { flex-direction: column-reverse; gap: 12px; }
+    .btn { width: 100%; justify-content: center; }
+}

@@ -1,8 +1,12 @@
-// 1. Inisialisasi Data Global
+/**
+ * Logik Tampilan & Interaksi Tabel Asset
+ * Dilengkapi dengan Filter Otomatis (Dropdown Inline)
+ */
+
 let assetData = [];
 
-// Fungsi membaca data aman saat halaman dimuat
 document.addEventListener("DOMContentLoaded", function() {
+    // 1. Ekstrak Data
     try {
         const rawText = document.getElementById('safe-json-data').textContent;
         if(rawText && rawText.trim() !== "") {
@@ -12,221 +16,429 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error("Gagal membaca data JSON:", error);
     }
 
-    // Render QR Code Kecil di Tabel
+    // 2. Render QR Code di Tabel
     const qrElements = document.querySelectorAll('.qr-render');
     qrElements.forEach(el => {
         const code = el.getAttribute('data-code');
         const data = assetData.find(a => a.barcode === code);
-        const name = data ? data.product_name : '';
 
-        if(code) {
-            const qrPayloadText = `Barcode: ${code}\nNama Barang: ${name}`;
+        if(code && data) {
+            el.innerHTML = ""; 
             new QRCode(el, {
-                text: qrPayloadText,
-                width: 75,
-                height: 75,
-                colorDark: "#1A1917",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M
+                text: generateRichPayload(data),
+                width: 90, height: 90, 
+                colorDark: "#000000", colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M 
             });
         }
     });
+
+    // 3. Bangun Dropdown Filter secara Dinamis
+    populateInlineFilters();
+
+    // 4. Tutup modal jika diklik di luar area konten
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal-overlay')) {
+            event.target.style.display = 'none';
+        }
+    }
 });
 
-/* --- FUNGSI MODAL VENDOR (YANG DIPERBAIKI) --- */
-
-// Fungsi tutup modal (Global Scope agar bisa diakses HTML)
-function closeSupplierModal() {
-    const modal = document.getElementById('modal-supplier');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+/* --- GENERATE QR LINK --- */
+function generateRichPayload(data) {
+    if (!data) return "INVALID_DATA";
+    return `${window.location.origin}/scan/${data.barcode}`;
 }
 
-function openSupplierModal(barcode) {
-    try {
-        const data = assetData.find(a => a.barcode === barcode);
-        if (!data) return;
+/* --- LOGIKA INLINE FILTER BAR --- */
+function populateInlineFilters() {
+    const depts = new Set();
+    const locs = new Set();
+    const cats = new Set();
+    const vendors = new Set();
 
-        const modal = document.getElementById('modal-supplier');
-        const modalBody = document.getElementById('modal-supplier-content');
-        const modalFooter = document.getElementById('modal-supplier-footer');
+    // Kumpulkan nilai unik dari data asset
+    assetData.forEach(item => {
+        if (item.department_full) depts.add(item.department_full);
+        if (item.lokasi_full) locs.add(item.lokasi_full);
+        if (item.category_name) cats.add(item.category_name);
+        if (item.supplier_name) vendors.add(item.supplier_name);
+    });
 
-        // 1. Persiapan Data
-        const company = data.supplier_name || '-';
-        const contact = data.supplier_contact || '-';
-        let rawPhone = data.supplier_phone || '-';
+    // Fungsi pembantu untuk mengisi dropdown
+    const fillDropdown = (selectId, dataSet) => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
         
-        // Format WA (08xx -> 628xx)
-        let waNumber = rawPhone.replace(/\D/g, '');
-        if (waNumber.startsWith('0')) waNumber = '62' + waNumber.substring(1);
-        const waLink = `https://wa.me/${waNumber}`;
+        Array.from(dataSet).sort().forEach(val => {
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = val;
+            select.appendChild(opt);
+        });
+        
+        // Tambahkan event listener saat user memilih sesuatu
+        select.addEventListener('change', applyInlineFilters);
+    };
 
-        // 2. Render Body dengan Layout Grid (Professional & Rapi)
-        // Menggunakan class CSS .vendor-info-row yang sudah didefinisikan di HTML
-        modalBody.innerHTML = `
-            <!-- Baris 1: Nama Perusahaan -->
-            <div class="vendor-info-row">
-                <div class="v-label">Perusahaan</div>
-                <div class="v-value" style="color: var(--gp-green); font-size: 16px;">${company}</div>
-            </div>
+    fillDropdown('filter-dept', depts);
+    fillDropdown('filter-loc', locs);
+    fillDropdown('filter-cat', cats);
+    fillDropdown('filter-vendor', vendors);
+}
 
-            <!-- Baris 2: Nama PIC -->
-            <div class="vendor-info-row">
-                <div class="v-label">Nama (PIC)</div>
-                <div class="v-value">${contact}</div>
-            </div>
+function applyInlineFilters() {
+    const filterDept = document.getElementById('filter-dept').value;
+    const filterLoc = document.getElementById('filter-loc').value;
+    const filterCat = document.getElementById('filter-cat').value;
+    const filterVendor = document.getElementById('filter-vendor').value;
 
-            <!-- Baris 3: Nomor Telepon -->
-            <div class="vendor-info-row">
-                <div class="v-label">No. Telepon</div>
-                <div class="v-value">
-                    <span style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace;">
-                        ${rawPhone}
-                    </span>
-                </div>
-            </div>
-        `;
+    const rows = document.querySelectorAll('#asset-table tbody .asset-row');
 
-        // 3. Render Footer (Tombol)
-        // Tombol Batal diberi type="button" agar aman
-        let footerHtml = `
-            <button type="button" class="btn-action" onclick="closeSupplierModal()" 
-                style="background: transparent; border: 1px solid #cbd5e1; color: #475569;">
-                Batal
-            </button>
-        `;
+    rows.forEach(row => {
+        // Ambil atribut data dari tiap baris HTML (Tabel)
+        const rowDept = row.getAttribute('data-departemen') || '';
+        const rowLoc = row.getAttribute('data-lokasi') || '';
+        const rowCat = row.getAttribute('data-kategori') || '';
+        const rowVendor = row.getAttribute('data-vendor') || '';
 
-        // Jika ada nomor HP valid, tambahkan tombol WA
-        if (rawPhone && rawPhone !== '-' && rawPhone.length > 5) {
-            footerHtml += `
-                <a href="${waLink}" target="_blank" style="
-                    text-decoration: none;
-                    background-color: #25D366; 
-                    color: white; 
-                    padding: 8px 16px; 
-                    border-radius: 6px; 
-                    font-weight: bold; 
-                    font-size: 13px; 
-                    display: flex; 
-                    align-items: center; 
-                    gap: 8px; 
-                    box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
-                    transition: transform 0.1s;">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326z"/></svg>
-                    Hubungi via WhatsApp
-                </a>
-            `;
+        // Cek kecocokan (jika dropdown kosong, berarti cocok semua)
+        const matchDept = (filterDept === "" || rowDept === filterDept);
+        const matchLoc = (filterLoc === "" || rowLoc === filterLoc);
+        const matchCat = (filterCat === "" || rowCat === filterCat);
+        const matchVendor = (filterVendor === "" || rowVendor === filterVendor);
+
+        // Sembunyikan atau tampilkan baris
+        if (matchDept && matchLoc && matchCat && matchVendor) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function resetAllFilters() {
+    document.getElementById('filter-dept').value = '';
+    document.getElementById('filter-loc').value = '';
+    document.getElementById('filter-cat').value = '';
+    document.getElementById('filter-vendor').value = '';
+    applyInlineFilters(); // Kembalikan tabel ke kondisi semula
+}
+
+/* --- CETAK MASSAL --- */
+function openBulkPrintModal() {
+    const total = assetData.length;
+    document.getElementById('print-end').value = total;
+    document.getElementById('print-end').max = total;
+    document.getElementById('modal-bulk-print').style.display = 'flex';
+}
+function closeBulkPrintModal() { document.getElementById('modal-bulk-print').style.display = 'none'; }
+
+function executeBulkPrint() {
+    const start = parseInt(document.getElementById('print-start').value);
+    const end = parseInt(document.getElementById('print-end').value);
+    const container = document.getElementById('bulk-print-container');
+    
+    if (isNaN(start) || isNaN(end) || start < 1 || end > assetData.length || start > end) {
+        alert("Nomor urut tidak valid."); return;
+    }
+
+    container.innerHTML = '';
+    for (let i = start - 1; i < end; i++) {
+        const item = assetData[i];
+        if (!item) continue;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'bulk-qr-item';
+        
+        const qrDiv = document.createElement('div');
+        qrDiv.className = 'bulk-qr-code';
+        new QRCode(qrDiv, {
+            text: generateRichPayload(item),
+            width: 120, height: 120,
+            colorDark: "#000000", colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+
+        wrapper.innerHTML = `<div class="bulk-qr-text">${item.barcode}</div>`;
+        wrapper.prepend(qrDiv);
+        container.appendChild(wrapper);
+    }
+    closeBulkPrintModal();
+    setTimeout(() => { window.print(); }, 500);
+}
+
+/* --- CEK GARANSI --- */
+function calculateWarrantyStatus(purchaseDateStr, warrantyStr) {
+    if (!purchaseDateStr || !warrantyStr) return { label: warrantyStr || '-', isValid: null, expiryDate: '-' };
+
+    try {
+        let purchaseDate;
+        const dateParts = purchaseDateStr.match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/);
+        if (dateParts) {
+            purchaseDate = new Date(parseInt(dateParts[3]), parseInt(dateParts[2]) - 1, parseInt(dateParts[1]));
+        } else {
+            purchaseDate = new Date(purchaseDateStr);
         }
 
-        modalFooter.innerHTML = footerHtml;
-        modal.style.display = 'flex';
+        if (isNaN(purchaseDate.getTime())) return { label: warrantyStr, isValid: null, expiryDate: '-' };
 
-    } catch (error) {
-        console.error("Error membuka modal vendor:", error);
-        alert("Gagal memuat data vendor.");
-    }
+        const now = new Date(); now.setHours(0, 0, 0, 0);
+        let monthsToAdd = 0, daysToAdd = 0;
+        const text = warrantyStr.toLowerCase();
+        const match = text.match(/(\d+)/);
+        const number = match ? parseInt(match[0]) : 0;
+
+        if (number > 0) {
+            if (text.includes('tahun') || text.includes('year')) monthsToAdd = number * 12;
+            else if (text.includes('bulan') || text.includes('month')) monthsToAdd = number;
+            else if (text.includes('minggu') || text.includes('week')) daysToAdd = number * 7;
+            else if (text.includes('hari') || text.includes('day')) daysToAdd = number;
+        }
+
+        const expiryDate = new Date(purchaseDate.getTime());
+        if (monthsToAdd > 0) expiryDate.setMonth(expiryDate.getMonth() + monthsToAdd);
+        if (daysToAdd > 0) expiryDate.setDate(expiryDate.getDate() + daysToAdd);
+        expiryDate.setHours(23, 59, 59, 999); 
+
+        const isValid = expiryDate >= now;
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        const expiryFormatted = expiryDate.toLocaleDateString('id-ID', options);
+
+        if (monthsToAdd === 0 && daysToAdd === 0 && !text.match(/\d/)) return { label: warrantyStr, isValid: true, expiryDate: '-' };
+
+        return {
+            label: isValid ? `BERLAKU (s.d ${expiryFormatted})` : `SUDAH HABIS (Exp: ${expiryFormatted})`,
+            isValid: isValid, expiryDate: expiryFormatted
+        };
+    } catch (e) { return { label: warrantyStr, isValid: null, expiryDate: '-' }; }
 }
 
-/* --- FUNGSI MODAL DETAIL ASSET --- */
-
+/* --- MODAL DETAIL UTAMA --- */
 function openModal(barcode) {
     const data = assetData.find(a => a.barcode === barcode);
     if (!data) return;
 
     const modalContent = document.getElementById('modal-content-area');
     const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
-    const harga = formatter.format(data.purchase_cost || 0);
+    
+    const harga = data.purchase_cost ? formatter.format(data.purchase_cost) : '-';
 
-    let specsHtml = '-';
-    if (data.specs) {
-        if (typeof data.specs === 'object') {
-            specsHtml = Object.entries(data.specs)
-                .map(([key, val]) => `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:4px 0;"><span style="color:#666; font-size:12px;">${key}</span><span style="font-weight:600;">${val}</span></div>`)
-                .join('');
-        } else {
-            specsHtml = data.specs;
+    let penyusutanFormatted = '-';
+    if (data.purchase_cost && data.age_asset && data.purchase_date) {
+        const parts = data.purchase_date.split('-');
+        if (parts.length === 3) {
+            const pDateYear = parseInt(parts[2]);
+            const pDateMonth = parseInt(parts[1]) - 1; 
+            
+            const today = new Date();
+            let monthsPassed = (today.getFullYear() - pDateYear) * 12;
+            monthsPassed -= pDateMonth;
+            monthsPassed += today.getMonth();
+            
+            if (monthsPassed < 0) monthsPassed = 0; 
+
+            let currentVal = data.purchase_cost - ((data.purchase_cost / data.age_asset) * monthsPassed);
+            if (currentVal < 0) currentVal = 0;
+
+            penyusutanFormatted = formatter.format(currentVal);
         }
     }
 
+    let warrantyHtml = '';
+    if (data.warranty_info) {
+        const warrantyCheck = calculateWarrantyStatus(data.purchase_date, data.warranty_info);
+        const statusColor = warrantyCheck.isValid === true ? '#10B981' : (warrantyCheck.isValid === false ? '#EF4444' : '#6B7280');
+        const statusIcon = warrantyCheck.isValid === true ? '✅' : (warrantyCheck.isValid === false ? '⚠️' : 'ℹ️');
+
+        warrantyHtml = `
+            <div class="data-group full-width">
+                <div class="warranty-box" style="border-left: 4px solid ${statusColor};">
+                    <div class="warranty-text" style="color: ${statusColor};">
+                        ${statusIcon} GARANSI: ${data.warranty_info} <br>
+                        <span style="font-weight:400; font-size:12px; color: var(--text-main);">Status: ${warrantyCheck.label}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     modalContent.innerHTML = `
-        <div class="data-group"><span class="data-label">Nomor Barcode</span><span class="data-value">${data.barcode || '-'}</span></div>
-        <div class="data-group"><span class="data-label">Serial Number</span><span class="data-value">${data.serial_number || '-'}</span></div>
-        
-        <div class="data-group"><span class="data-label">Nama Asset</span><span class="data-value" style="color:var(--gp-green);">${data.product_name}</span></div>
-        <div class="data-group"><span class="data-label">Model</span><span class="data-value">${data.model || '-'}</span></div>
-        
-        <div class="data-group"><span class="data-label">Kategori</span><span class="data-value">${data.category_name || '-'}</span></div>
-        <div class="data-group"><span class="data-label">Status</span><span class="data-value">${data.status_name || '-'}</span></div>
-        
-        <div class="data-group"><span class="data-label">Lokasi</span><span class="data-value">${data.lokasi_full || '-'}</span></div>
-        <div class="data-group"><span class="data-label">Supplier</span><span class="data-value">${data.supplier_name || '-'}</span></div>
-        
-        <div class="data-group"><span class="data-label">Tanggal Beli</span><span class="data-value">${data.purchase_date || '-'}</span></div>
-        <div class="data-group"><span class="data-label">Harga Beli</span><span class="data-value">${harga}</span></div>
-        
-        <div class="data-group" style="grid-column: span 2; background: #F8FAF9; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
-            <span class="data-label" style="display:block; margin-bottom:8px;">Spesifikasi Teknis</span>
-            <div style="font-size: 13px;">${specsHtml}</div>
+        <div class="detail-grid">
+            <div class="data-group">
+                <span class="data-label">Nama Produk</span>
+                <span class="data-value highlight">${data.product_name}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Model / Tipe</span>
+                <span class="data-value">${data.model || '-'}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Barcode ID</span>
+                <span class="data-value mono">${data.barcode || '-'}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Serial Number</span>
+                <span class="data-value mono">${data.serial_number || '-'}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Kategori</span>
+                <span class="data-value">${data.category_name || '-'}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Status Kondisi</span>
+                <span class="data-value">${data.status_name || '-'}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Departemen</span>
+                <span class="data-value">${data.department_full || '-'}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Lokasi Penempatan</span>
+                <span class="data-value">${data.lokasi_full || '-'}</span>
+            </div>
+            
+            <hr style="grid-column: span 2; border: 0; border-top: 1px dashed var(--border); margin: 8px 0;">
+            
+            <div class="data-group">
+                <span class="data-label">Tanggal Pembelian</span>
+                <span class="data-value">${data.purchase_date || '-'}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Supplier / Vendor</span>
+                ${data.supplier_name 
+                    ? `<a href="#" onclick="openSupplierModal('${data.barcode}'); return false;" class="link-vendor" style="font-size: 14px;">${data.supplier_name}</a>` 
+                    : `<span class="data-value">-</span>`}
+            </div>
+            
+            <div class="data-group">
+                <span class="data-label">Harga Pembelian</span>
+                <span class="data-value">${harga}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Harga Penyusutan (Sisa)</span>
+                <span class="data-value highlight" style="font-size: 15px; color: var(--primary);">${penyusutanFormatted}</span>
+            </div>
+            
+            <div class="data-group">
+                <span class="data-label">Perkiraan Usia Asset</span>
+                <span class="data-value">${data.age_asset ? data.age_asset + ' Bulan' : '-'}</span>
+            </div>
+            <div class="data-group">
+                <span class="data-label">Quantity (Qty)</span>
+                <span class="data-value highlight" style="font-size: 15px;">${data.qty || '0'} Unit</span>
+            </div>
+            
+            <hr style="grid-column: span 2; border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
+
+            <div class="data-group full-width">
+                <span class="data-label">Keterangan Tambahan</span>
+                <span class="data-value">${data.keterangan || '-'}</span>
+            </div>
+            
+            ${warrantyHtml}
+        </div>
+    `;
+    document.getElementById('modal-detail').style.display = 'flex';
+}
+function closeModal() { document.getElementById('modal-detail').style.display = 'none'; }
+
+/* --- MODAL VENDOR --- */
+function openSupplierModal(barcode) {
+    const data = assetData.find(a => a.barcode === barcode);
+    if (!data) return;
+
+    const modalBody = document.getElementById('modal-supplier-content');
+    const modalFooter = document.getElementById('modal-supplier-footer');
+    
+    const company = data.supplier_name || '-';
+    const pic = data.supplier_contact || '-';
+    let phone = data.supplier_phone || '-';
+
+    modalBody.innerHTML = `
+        <div class="vendor-row">
+            <span class="v-label">Perusahaan</span>
+            <span class="v-value" style="color:var(--primary); font-size:15px;">${company}</span>
+        </div>
+        <div class="vendor-row">
+            <span class="v-label">Kontak (PIC)</span>
+            <span class="v-value">${pic}</span>
+        </div>
+        <div class="vendor-row">
+            <span class="v-label">Telepon</span>
+            <span class="v-value mono" style="background:var(--surface-hover); padding:2px 6px; border-radius:4px;">${phone}</span>
         </div>
     `;
 
-    document.getElementById('modal-detail').style.display = 'flex';
+    let footerHtml = '';
+    if (phone && phone.length > 6) {
+        let waNum = phone.replace(/\D/g, '');
+        if(waNum.startsWith('0')) waNum = '62' + waNum.substring(1);
+        footerHtml = `<a href="https://wa.me/${waNum}" target="_blank" class="btn-action" style="background:#10B981; color:#FFFFFF; border:none; text-decoration:none;">Chat WhatsApp</a>`;
+    }
+    modalFooter.innerHTML = footerHtml;
+    document.getElementById('modal-supplier').style.display = 'flex';
 }
+function closeSupplierModal() { document.getElementById('modal-supplier').style.display = 'none'; }
 
-function closeModal() {
-    document.getElementById('modal-detail').style.display = 'none';
-}
-
-/* --- FUNGSI QR CODE --- */
-
+/* --- TAMPILKAN QR DI TABEL --- */
 function toggleQR() {
     const table = document.getElementById('asset-table');
-    const btn = document.getElementById('btn-toggle-qr');
+    const menuText = document.querySelector('#menu-toggle-qr span');
+    
     table.classList.toggle('show-qr-mode');
     
     if(table.classList.contains('show-qr-mode')) {
-        btn.innerText = "Sembunyikan QR Code";
-        btn.style.background = "var(--gp-orange)";
-        btn.style.color = "var(--white)";
+        if(menuText) menuText.innerText = "Sembunyikan QR";
     } else {
-        btn.innerText = "Tampilkan QR Code";
-        btn.style.background = "transparent";
-        btn.style.color = "var(--gp-black)";
+        if(menuText) menuText.innerText = "Tampilkan QR";
     }
 }
 
+/* --- ZOOM QR --- */
 function zoomQR(barcode) {
     const data = assetData.find(a => a.barcode === barcode);
-    const productName = data ? data.product_name : 'Tidak Diketahui';
+    if (!data) return;
 
     document.getElementById('large-qr-text').innerText = barcode;
-    document.getElementById('large-qr-product').innerText = productName;
-    
     const qrContainer = document.getElementById('large-qr-render');
     qrContainer.innerHTML = ''; 
 
-    const qrPayloadText = `Barcode: ${barcode}\nNama Barang: ${productName}`;
     new QRCode(qrContainer, {
-        text: qrPayloadText,
-        width: 250,
-        height: 250,
-        colorDark: "#1A1917",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
+        text: generateRichPayload(data),
+        width: 250, height: 250,
+        colorDark: "#000000", colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M 
     });
-
     document.getElementById('modal-qr').style.display = 'flex';
 }
+function closeQRModal() { document.getElementById('modal-qr').style.display = 'none'; }
 
-function closeQRModal() {
-    document.getElementById('modal-qr').style.display = 'none';
-}
-
+/* --- CETAK 1 QR --- */
 function printOnlyQR() {
-    document.body.classList.add('print-qr-only');
-    window.print();
-    setTimeout(() => {
-        document.body.classList.remove('print-qr-only');
-    }, 500);
+    const barcode = document.getElementById('large-qr-text').innerText;
+    const data = assetData.find(a => a.barcode === barcode);
+    if (!data) return;
+
+    const container = document.getElementById('bulk-print-container');
+    container.innerHTML = ''; 
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'bulk-qr-item';
+    
+    const qrDiv = document.createElement('div');
+    qrDiv.className = 'bulk-qr-code';
+    new QRCode(qrDiv, {
+        text: generateRichPayload(data),
+        width: 120, height: 120,
+        colorDark: "#000000", colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M 
+    });
+
+    wrapper.innerHTML = `<div class="bulk-qr-text">${data.barcode}</div>`;
+    wrapper.prepend(qrDiv);
+    container.appendChild(wrapper);
+
+    closeQRModal();
+    setTimeout(() => { window.print(); }, 500);
 }

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Pengguna - Inventory IT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Script Tema -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+    <style>
+        .user-form-card {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            max-width: 550px;
+            margin: 0 auto 40px auto;
+            position: relative;
+        }
+        
+        [data-theme="dark"] .user-form-card {
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.4);
+        }
+
+        .alert-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+        .alert-success { background: rgba(52, 211, 153, 0.15); color: var(--gp-green); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .alert-error { background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* Style untuk Tabel User */
+        .table-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto 50px auto;
+        }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: var(--bg-hover); padding: 15px; text-align: left; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .data-table td { padding: 15px; border-bottom: 1px solid var(--border-color); color: var(--text-main); font-size: 0.95rem; }
+        .data-table tr:last-child td { border-bottom: none; }
+        
+        .role-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .role-admin { background: rgba(79, 70, 229, 0.1); color: #4F46E5; }
+        .role-user { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .role-guest { background: rgba(107, 114, 128, 0.1); color: #6B7280; }
+        
+        [data-theme="dark"] .role-admin { background: rgba(79, 70, 229, 0.2); color: #818CF8; }
+        [data-theme="dark"] .role-user { background: rgba(16, 185, 129, 0.2); color: #34D399; }
+        [data-theme="dark"] .role-guest { background: rgba(156, 163, 175, 0.2); color: #D1D5DB; }
+
+        .action-btn { border: none; background: none; cursor: pointer; padding: 6px; border-radius: 6px; transition: 0.2s; }
+        .btn-edit { color: var(--gp-blue); }
+        .btn-edit:hover { background: rgba(59, 130, 246, 0.1); }
+        .btn-delete { color: #EF4444; }
+        .btn-delete:hover { background: rgba(239, 68, 68, 0.1); }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-cancel:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+            border-color: var(--text-main);
+        }
+
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--bg-card); padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border-color); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-modal { float: right; font-size: 24px; font-weight: bold; cursor: pointer; color: var(--text-muted); }
+        .close-modal:hover { color: var(--text-main); }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        
+        <div class="page-header animate-fade-in" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 30px;">
+            <div>
+                <a href="/" class="btn-back">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Kembali ke Dashboard
+                </a>
+            </div>
+            <div class="page-title" style="text-align: center;"><h2 style="font-family: 'Plus Jakarta Sans', sans-serif; margin: 0;">Manajemen Pengguna</h2></div>
+            <div></div> <!-- Empty div for grid balance -->
+        </div>
+
+        <div class="user-form-card animate-slide-up">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">👥</div>
+                <h3 style="margin: 0; color: var(--text-main); font-family: 'Plus Jakarta Sans'; font-size: 1.5rem;">Buat Akun Baru</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Tambahkan administrator atau guest untuk mengakses sistem.</p>
+            </div>
+
+            <!-- Flash Messages dari app.py -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert-message alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('tambah_user') }}" method="POST">
+                <div class="form-group">
+                    <label>Nama Lengkap <span style="color: #DC2626;">*</span></label>
+                    <input type="text" name="nama_lengkap" required placeholder="Contoh: Budi Santoso">
+                </div>
+
+                <div class="form-group">
+                    <label>Username (Untuk Login) <span style="color: #DC2626;">*</span></label>
+                    <input type="text" name="username" required placeholder="Contoh: budi.it" pattern="[a-zA-Z0-9_.-]+" title="Hanya huruf, angka, titik, strip, atau underscore">
+                </div>
+
+                <div class="form-group">
+                    <label>Password <span style="color: #DC2626;">*</span></label>
+                    <input type="password" name="password" required placeholder="Minimal 6 karakter" minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label>Peran (Role) Akses <span style="color: #DC2626;">*</span></label>
+                    <select name="role" required>
+                        <option value="admin">Administrator (Akses Penuh)</option>
+                        <option value="user">User (Staff IT / Editor)</option>
+                        <option value="guest">Guest / Tamu (Hanya Melihat & Scan)</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 35px;">
+                    <button type="submit" class="btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">Daftarkan Pengguna</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TABEL DAFTAR PENGGUNA -->
+        <div class="table-card animate-slide-up" style="animation-delay: 0.1s;">
+            <div style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-family: 'Plus Jakarta Sans'; font-size: 1.1rem;">Daftar Pengguna Sistem</h3>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th width="50" style="text-align: center;">No</th>
+                            <th>Nama Lengkap</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th width="100" style="text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td style="text-align: center; color: var(--text-muted);">{{ loop.index }}</td>
+                            <td><strong>{{ u.nama_lengkap }}</strong></td>
+                            <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">{{ u.username }}</td>
+                            <td>
+                                <span class="role-badge role-{{ u.role }}">
+                                    {{ u.role | capitalize }}
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <button class="action-btn btn-edit" onclick="openEditModal('{{ u.id }}', '{{ u.username }}', '{{ u.nama_lengkap }}', '{{ u.role }}')" title="Edit User">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                                {% if u.id != current_user.id %}
+                                <form action="/hapus-user/{{ u.id }}" method="POST" onsubmit="return confirm('Hapus pengguna {{ u.username }}?');" style="display: inline;">
+                                    <button type="submit" class="action-btn btn-delete" title="Hapus User">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- MODAL EDIT USER -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-family: 'Plus Jakarta Sans';">Edit Pengguna</h3>
+            <form action="/edit-user" method="POST">
+                <input type="hidden" name="user_id" id="edit_user_id">
+                
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="nama_lengkap" id="edit_nama_lengkap" required>
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" id="edit_username" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role" id="edit_role" required>
+                        <option value="admin">Administrator</option>
+                        <option value="user">User</option>
+                        <option value="guest">Guest</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Password Baru <small style="color: var(--text-muted); font-weight: normal;">(Kosongkan jika tidak ingin mengubah)</small></label>
+                    <input type="password" name="password" placeholder="***">
+                </div>
+                <div style="margin-top: 25px; text-align: right;">
+                    <button type="button" class="btn-cancel" onclick="closeModal()" style="margin-right: 10px;">Batal</button>
+                    <button type="submit" class="btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, username, nama, role) {
+            document.getElementById('edit_user_id').value = id;
+            document.getElementById('edit_username').value = username;
+            document.getElementById('edit_nama_lengkap').value = nama;
+            document.getElementById('edit_role').value = role;
+            document.getElementById('editUserModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+        // Tutup modal jika klik di luar area konten
+        window.onclick = function(event) {
+            var modal = document.getElementById('editUserModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

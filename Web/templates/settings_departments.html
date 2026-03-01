@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pengaturan Departemen - Inventory IT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="page-header animate-fade-in">
+            <a href="/settings" class="btn-back"><span>&larr;</span> Kembali</a>
+            <div class="page-title"><h2>Database Departemen</h2></div>
+            <button onclick="addDepartment()" class="btn-primary">+ Tambah Departemen</button>
+        </div>
+
+        <div class="table-responsive animate-slide-up">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="50">NO</th>
+                        <th>Nama Departemen</th>
+                        <th width="150">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td style="text-align: center; font-weight: bold;">{{ loop.index }}</td>
+                        
+                        <td><strong>{{ item.name }}</strong></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-sm btn-edit" onclick="editDepartment('{{ item.department_id }}', '{{ item.name }}')">Edit</button>
+                                <form action="/settings/departments/delete/{{ item.department_id }}" method="POST" onsubmit="return confirm('Hapus departemen ini?');">
+                                    <button type="submit" class="btn-sm btn-delete">Hapus</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="3" style="text-align:center;">Belum ada data departemen.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('formModal')">&times;</span>
+            <h3 id="modalTitle">Tambah Departemen</h3>
+            <form id="formItem" action="/settings/departments/save" method="POST">
+                <input type="hidden" id="department_id" name="department_id">
+                
+                <div class="form-group">
+                    <label>Nama Departemen</label>
+                    <input type="text" id="name" name="name" required placeholder="Contoh: IT, HRD, Sales">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('formModal')">Batal</button>
+                    <button type="submit" class="btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='settings.js') }}"></script>
+</body>
+</html>
