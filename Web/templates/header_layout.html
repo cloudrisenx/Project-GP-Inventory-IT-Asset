@@ -1,0 +1,58 @@
+{# ================================================================= #}
+{# ============ FILE HEADER TERPUSAT (JANGAN DIEDIT) ============ #}
+{# ================================================================= #}
+
+{# --- BAGIAN 1: NAVBAR ATAS --- #}
+<nav class="top-navbar">
+    <div class="nav-brand">
+        <span class="brand-logo">GP</span>
+        <div class="brand-info">
+            <span class="brand-title">Inventory Asset</span>
+            <span class="brand-subtitle">{{ page_subtitle or 'IT Department' }}</span>
+        </div>
+    </div>
+    <div class="nav-actions">
+        {% if page_subtitle == 'IT Department' %}
+        <button class="btn-action btn-hamburger" onclick="toggleSidebar()" style="margin-right: 8px; padding: 8px 12px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <span style="display: none;">Menu</span>
+        </button>
+        {% endif %}
+        <a href="{{ back_link or url_for('assets.index') }}" class="btn-back">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            {{ back_text or 'Dashboard Utama' }}
+        </a>
+    </div>
+</nav>
+
+{# --- BUKA TAG MAIN (Akan ditutup oleh </main> di file masing-masing) --- #}
+<main class="{{ main_class or 'main-content' }}" {% if main_style %}style="{{ main_style }}"{% endif %}>
+
+    {# --- BAGIAN 2: JUDUL KONTEN --- #}
+    {% if page_title %}
+    <div class="content-header">
+        <div>
+            <h1>{{ page_title }}</h1>
+            <p>{{ page_desc }}</p>
+        </div>
+        
+        {% if show_header_actions %}
+        <div class="header-actions">
+            {% if show_filter_buttons %}
+            <button class="btn-action" onclick="toggleFilterPanel()" title="Tampilkan/Sembunyikan Filter">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                <span>Filter</span>
+            </button>
+            <button class="btn-action btn-primary" onclick="toggleQR()" id="menu-toggle-qr">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
+                <span>Tampilkan QR</span>
+            </button>
+            {% endif %}
+
+            {% if action_btn_js %}
+            <button onclick="{{ action_btn_js }}" class="btn-primary" style="border-radius: 8px;">{{ action_btn_text }}</button>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}

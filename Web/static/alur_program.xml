@@ -1,0 +1,104 @@
+<mxfile host="Electron" modified="2026-05-28T09:00:00.000Z" agent="5.0" version="22.1.21" type="device">
+  <diagram id="Program_Flow_Griya_Persada" name="Alur Program IT Asset">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Shape 1: Start (Ellipse) -->
+        <mxCell id="flow_start" value="Mulai / Akses Aplikasi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#166534;fontColor=#14532d;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="40" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Shape 2: Login Page (Process) -->
+        <mxCell id="flow_login" value="Halaman Login&#xa;(Auth.login)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0369a1;fontColor=#0c4a6e;" vertex="1" parent="1">
+          <mxGeometry x="320" y="140" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Shape 3: Decision Check Login (Decision) -->
+        <mxCell id="flow_check_login" value="Kredensial&#xa;Valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;fontColor=#78350f;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="240" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Shape 4: Main Dashboard (Process) -->
+        <mxCell id="flow_dashboard" value="Dashboard Utama&#xa;(Statistik &amp; Ringkasan)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0369a1;fontColor=#0c4a6e;" vertex="1" parent="1">
+          <mxGeometry x="320" y="360" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Shape 5: Tambah Data Asset Form -->
+        <mxCell id="flow_tambah_data" value="Registrasi Asset Baru&#xa;(tambah-data.html)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fae8ff;strokeColor=#c084fc;fontColor=#701a75;" vertex="1" parent="1">
+          <mxGeometry x="100" y="480" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Shape 6: Tabel Database Asset -->
+        <mxCell id="flow_tabel_asset" value="Tabel Database Asset&#xa;(tabel.html)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fae8ff;strokeColor=#c084fc;fontColor=#701a75;" vertex="1" parent="1">
+          <mxGeometry x="320" y="480" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Shape 7: Master Data Settings -->
+        <mxCell id="flow_settings" value="Master Data Settings&#xa;(Supplier, Lokasi, dll)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fae8ff;strokeColor=#c084fc;fontColor=#701a75;" vertex="1" parent="1">
+          <mxGeometry x="540" y="480" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Shape 8: QR Code Details & Zoom -->
+        <mxCell id="flow_qr" value="QR Code Zoom&#xa;&amp; Cetak Massal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#4b5563;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="220" y="600" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Shape 9: Barcode Fix API -->
+        <mxCell id="flow_barcode_fix" value="API Regenerasi Barcode&#xa;(Bulk / Satuan)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#4b5563;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="440" y="600" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CONNECTORS ==================== -->
+        <!-- Start -> Login -->
+        <mxCell id="con_start_login" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="flow_start" target="flow_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Login -> Check Auth -->
+        <mxCell id="con_login_check" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="flow_login" target="flow_check_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Check Auth -> Dashboard (Yes) -->
+        <mxCell id="con_check_dash" value="YA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#166534;fontColor=#166534;strokeWidth=2;fontStyle=1;" edge="1" parent="1" source="flow_check_login" target="flow_dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Check Auth -> Login (No) -->
+        <mxCell id="con_check_login_fail" value="TIDAK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#dc2626;fontColor=#991b1b;strokeWidth=1.5;fontStyle=1;" edge="1" parent="1" source="flow_check_login" target="flow_login">
+          <mxGeometry relative="1" as="geometry">
+            <Array points="280 280; 280 170" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Dashboard -> Tambah Data -->
+        <mxCell id="con_dash_tambah" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="flow_dashboard" target="flow_tambah_data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Dashboard -> Tabel Asset -->
+        <mxCell id="con_dash_tabel" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="flow_dashboard" target="flow_tabel_asset">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Dashboard -> Settings -->
+        <mxCell id="con_dash_settings" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="flow_dashboard" target="flow_settings">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Tabel Asset -> QR Code Details -->
+        <mxCell id="con_tabel_qr" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="flow_tabel_asset" target="flow_qr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Tabel Asset -> Barcode Fix API -->
+        <mxCell id="con_tabel_fix" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="flow_tabel_asset" target="flow_barcode_fix">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

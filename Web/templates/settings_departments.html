@@ -6,13 +6,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="dashboard-container">
-        <div class="page-header animate-fade-in">
-            <a href="/settings" class="btn-back"><span>&larr;</span> Kembali</a>
-            <div class="page-title"><h2>Database Departemen</h2></div>
-            <button onclick="addDepartment()" class="btn-primary">+ Tambah Departemen</button>
-        </div>
+<body class="with-dashboard">
+    {% set page_subtitle = 'Pengaturan' %}
+    {% set back_link = '/settings' %}
+    {% set back_text = 'Pengaturan' %}
+    {% set page_title = 'Database Departemen' %}
+    {% set page_desc = 'Kelola daftar departemen yang ada di perusahaan' %}
+    {% set show_header_actions = true %}
+    {% set action_btn_js = 'addDepartment()' %}
+    {% set action_btn_text = '+ Tambah Departemen' %}
+    {% set main_class = 'dashboard-container' %}
+    {% set main_style = 'padding-top: 20px;' %}
+    {% include 'header_layout.html' %}
 
         <div class="table-responsive animate-slide-up">
             <table class="data-table">
@@ -44,7 +49,7 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </main>
 
     <div id="formModal" class="modal">
         <div class="modal-content">

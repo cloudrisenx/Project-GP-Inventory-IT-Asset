@@ -4,12 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Asset Management System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+
+    <!-- Script Pembaca Tema: Mencegah layar kembali ke mode terang saat refresh -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
 </head>
 <body>
 
+    <!-- Tombol Ganti Tema -->
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 10;">
+        <button type="button" class="btn-sm btn-theme" id="theme-toggle-btn">
+            <span id="themeIcon">☀️</span>
+            <span id="themeText">Terang</span>
+        </button>
+    </div>
     <div class="login-container">
         <div class="login-box">
             <div class="login-header">
@@ -28,7 +43,7 @@
                 {% endif %}
             {% endwith %}
 
-            <form action="{{ url_for('login') }}" method="POST" id="loginForm">
+            <form action="{{ url_for('auth.login') }}" method="POST" id="loginForm">
                 <div class="input-group">
                     <label for="username">Username</label>
                     <div class="input-wrapper">
@@ -63,5 +78,38 @@
     </div>
 
     <script src="{{ url_for('static', filename='login.js') }}"></script>
+
+    <!-- Script Logika untuk Tombol Ganti Tema -->
+    <script>
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        const htmlElement = document.documentElement;
+
+        function updateThemeUI() {
+            if (htmlElement.getAttribute('data-theme') === 'dark') {
+                themeIcon.innerText = '🌙';
+                themeText.innerText = 'Gelap';
+            } else {
+                themeIcon.innerText = '☀️';
+                themeText.innerText = 'Terang';
+            }
+        }
+
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                htmlElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateThemeUI();
+        });
+
+        // Panggil saat halaman dimuat untuk set teks tombol yang benar
+        updateThemeUI();
+    </script>
 </body>
 </html>

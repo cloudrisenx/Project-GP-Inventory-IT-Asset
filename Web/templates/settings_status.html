@@ -5,14 +5,26 @@
     <title>Pengaturan Status - Inventory IT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Script Pembaca Tema: Akan otomatis menyesuaikan dengan yang dipilih di Index -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
 </head>
-<body>
-    <div class="dashboard-container">
-        <div class="page-header animate-fade-in">
-            <a href="/settings" class="btn-back"><span>&larr;</span> Kembali</a>
-            <div class="page-title"><h2>Status Asset</h2></div>
-            <button onclick="addStatus()" class="btn-primary">+ Tambah Status</button>
-        </div>
+<body class="with-dashboard">
+    {% set page_subtitle = 'Pengaturan' %}
+    {% set back_link = '/settings' %}
+    {% set back_text = 'Pengaturan' %}
+    {% set page_title = 'Status Asset' %}
+    {% set page_desc = 'Kelola opsi kondisi asset (Baik, Rusak, dsb)' %}
+    {% set show_header_actions = true %}
+    {% set action_btn_js = 'addStatus()' %}
+    {% set action_btn_text = '+ Tambah Status' %}
+    {% set main_class = 'dashboard-container' %}
+    {% set main_style = 'padding-top: 20px;' %}
+    {% include 'header_layout.html' %}
 
         <div class="table-responsive animate-slide-up">
             <table class="data-table">
@@ -29,7 +41,7 @@
                         <td style="text-align: center; font-weight: bold;">{{ loop.index }}</td>
                         <td>
                             <!-- Badge sederhana untuk status -->
-                            <span style="padding: 5px 10px; border-radius: 15px; background: #e5e7eb; font-weight:bold;">
+                            <span class="status-badge {% if item.status_name == 'Baik' or item.status_name == 'Aktif' %}bg-success{% elif item.status_name == 'Rusak' %}bg-danger{% else %}bg-warning{% endif %}">
                                 {{ item.status_name }}
                             </span>
                         </td>
@@ -48,7 +60,7 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </main>
 
     <!-- MODAL POPUP FORM -->
     <div id="formModal" class="modal">

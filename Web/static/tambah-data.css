@@ -12,6 +12,14 @@
     --surface-alt: #F9FAFB;
     --border: #E5E7EB;
     
+    /* Status Colors (Light) */
+    --status-success-bg: #dcfce7;
+    --status-success-text: #166534;
+    --status-danger-bg: #fee2e2;
+    --status-danger-text: #991b1b;
+    --status-warning-bg: #fef3c7;
+    --status-warning-text: #92400e;
+
     /* Text */
     --text-main: #111827;
     --text-secondary: #4B5563;
@@ -39,6 +47,14 @@
     --surface-alt: #111827;
     --border: #374151;
     
+    /* Status Colors (Dark) */
+    --status-success-bg: rgba(52, 211, 153, 0.2);
+    --status-success-text: #34d399;
+    --status-danger-bg: rgba(239, 68, 68, 0.2);
+    --status-danger-text: #f87171;
+    --status-warning-bg: rgba(245, 158, 11, 0.2);
+    --status-warning-text: #fbbf24;
+
     --text-main: #F9FAFB;
     --text-secondary: #D1D5DB;
     --text-muted: #9CA3AF;
@@ -59,51 +75,11 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* --- TOP NAVBAR --- */
-.top-navbar {
-    background-color: var(--surface);
-    padding: 0 32px;
-    height: 72px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
-}
-
-.nav-brand { display: flex; align-items: center; gap: 12px; }
-
-.brand-logo {
-    background: var(--primary); color: #111827; font-weight: 800;
-    padding: 8px 12px; border-radius: 8px; font-size: 16px;
-}
-:root .brand-logo { color: #FFFFFF; }
-[data-theme="dark"] .brand-logo { color: #111827; }
-
-.brand-info { display: flex; flex-direction: column; justify-content: center; }
-.brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 16px; color: var(--text-main); line-height: 1.2; }
-.brand-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-
-.btn-back {
-    text-decoration: none; color: var(--text-secondary); font-weight: 600; font-size: 13px;
-    display: flex; align-items: center; gap: 8px; padding: 8px 16px;
-    border-radius: 20px; background: var(--surface-alt); border: 1px solid var(--border);
-    transition: var(--transition);
-}
-.btn-back:hover { 
-    background: var(--surface); border-color: var(--primary);
-    color: var(--primary); transform: translateX(-2px);
-}
-
 /* --- MAIN LAYOUT --- */
 .main-content { padding: 40px 20px; max-width: 900px; margin: 0 auto; }
-.page-header { text-align: center; margin-bottom: 32px; }
-.page-header h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; transition: color 0.3s; }
-.page-header p { color: var(--text-secondary); font-size: 15px; transition: color 0.3s; }
+.page-header { margin-bottom: 32px; }
+.page-header h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 700; color: var(--text-main); margin: 0; letter-spacing: -0.03em; transition: color 0.3s; }
+.page-header p { color: var(--text-secondary); font-size: 1.1rem; margin-top: 8px; transition: color 0.3s; }
 
 /* --- FORM CARD --- */
 .form-card {
@@ -215,12 +191,15 @@ textarea.form-control { resize: vertical; min-height: 120px; height: auto; paddi
 
 /* Tombol Submit */
 .btn-submit { 
-    background: #34D399; 
-    color: #064E3B; 
+    background: var(--primary); 
+    color: #FFFFFF; 
     border: none; 
 }
+[data-theme="dark"] .btn-submit {
+    color: #111827; /* Teks gelap untuk kontras di background terang */
+}
 .btn-submit:hover { 
-    background: #10B981; 
+    background: var(--primary-hover); 
     transform: translateY(-1px); 
     box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
 }
@@ -250,3 +229,41 @@ textarea.form-control { resize: vertical; min-height: 120px; height: auto; paddi
     .form-footer { flex-direction: column-reverse; gap: 12px; }
     .btn { width: 100%; justify-content: center; }
 }
+
+/* --- NAVBAR STANDARDIZATION --- */
+.top-navbar {
+    background-color: var(--surface, var(--bg-card, #ffffff));
+    padding: 0 32px;
+    height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border, var(--border-color, #e5e5ea));
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo { background: var(--primary, var(--gp-green, #10b981)); color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; padding: 6px 12px; border-radius: 8px; font-size: 16px; transition: color 0.3s ease; }
+[data-theme="dark"] .brand-logo { color: #111827; }
+
+.brand-info { display: flex; flex-direction: column; }
+.brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-main, #1d1d1f); }
+.brand-subtitle { font-size: 11px; color: var(--text-muted, #86868b); font-family: 'Inter', sans-serif;}
+
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.btn-back {
+    text-decoration: none; color: var(--text-main, #1d1d1f); font-weight: 600; font-size: 13px;          
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;        
+    background-color: var(--surface-alt); border: 1px solid var(--border, var(--border-color, #e5e5ea)); border-radius: 50px; transition: all 0.3s ease;     
+}
+.btn-back:hover { background-color: var(--primary, var(--gp-green, #10b981)); border-color: var(--primary, var(--gp-green, #10b981)); color: #FFFFFF; }
+[data-theme="dark"] .btn-back:hover { color: #111827; }
+
+.btn-back svg { width: 16px; height: 16px; color: var(--text-muted, #86868b); transition: transform 0.2s ease, color 0.2s ease; }
+.btn-back:hover svg { color: #FFFFFF; transform: translateX(-2px); }
+[data-theme="dark"] .btn-back:hover svg { color: #111827; }
+/* --- END NAVBAR STANDARDIZATION --- */

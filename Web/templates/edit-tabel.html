@@ -25,25 +25,13 @@
     <!-- DATA STORE AMAN -->
     <div id="safe-json-data" style="display: none;">{{ assets_json | safe }}</div>
 
-    <nav class="top-navbar">
-        <div class="nav-brand" style="display: flex; align-items: center; gap: 12px;">
-            <span class="brand-logo" style="display: flex; align-items: center; justify-content: center;">GP</span>
-            <div class="brand-info" style="display: flex; flex-direction: column; justify-content: center;">
-                <span class="brand-title" style="line-height: 1.2; font-weight: 700; font-size: 15px;">Asset Management</span>
-                <span class="brand-subtitle" style="line-height: 1.2; font-size: 11px; color: var(--text-muted);">Edit Mode</span>
-            </div>
-        </div>
-        <a href="/" class="btn-back">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Dashboard
-        </a>
-    </nav>
-
-    <main class="main-content">
-        <div class="header-section" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
-            <h1 style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0;">Data Inventaris IT</h1>
-            <p style="color: var(--text-muted); font-size: 14px; margin: 0;">Kelola semua aset digital dan perangkat keras perusahaan.</p>
-        </div>
+    {# Panggil header terpusat #}
+    {% set page_subtitle = 'Edit Mode' %}
+    {% set page_title = 'Database Asset IT' %}
+    {% set back_link = url_for('assets.index') %}
+    {% set back_text = 'Dashboard' %}
+    {% set page_desc = 'Mode Edit & Kelola seluruh perangkat IT perusahaan.' %}
+    {% include 'header_layout.html' %}
 
         <!-- PERBAIKAN NOTIFIKASI BERHASIL / GAGAL -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -63,8 +51,21 @@
         {% endwith %}
 
         <div class="table-card">
+            <!-- BARIS FILTER & PENCARIAN -->
+            <div class="filter-bar" style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: var(--bg-card); border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+                <input type="text" id="searchInput" class="form-control" placeholder="Cari nama asset, barcode, atau tipe..." style="flex: 1; min-width: 250px; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main);" onkeyup="filterEditTable()">
+                <select id="filterDept" class="form-control" style="width: auto; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main);" onchange="filterEditTable()">
+                    <option value="">Semua Departemen</option>
+                    {% for item in assets|unique(attribute='department_full') %}
+                        {% if item.department_full %}
+                            <option value="{{ item.department_full }}">{{ item.department_full }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="table-responsive">
-                <table class="gp-table">
+                <table class="gp-table" id="edit-asset-table">
                     <thead>
                         <tr>
                             <th width="50" class="text-center">No</th>
@@ -78,7 +79,7 @@
                     </thead>
                     <tbody>
                         {% for item in assets %}
-                        <tr>
+                        <tr class="edit-row" data-name="{{ item.product_name | lower }}" data-barcode="{{ item.barcode | lower }}" data-model="{{ item.model | lower }}" data-dept="{{ item.department_full }}">
                             <td class="col-no">{{ loop.index }}</td>
                             <td>
                                 <div class="product-info">
@@ -89,7 +90,7 @@
                             <td class="text-center">
                                 <div class="category-wrapper">
                                     <span class="category-pill">{{ item.category_name or '-' }}</span>
-                                    <span class="dept-text">{{ item.department_full or item.department_name or '-' }}</span>
+                                    <span class="dept-text">{{ item.department_full or '-' }}</span>
                                 </div>
                             </td>
                             <td class="text-center">
@@ -305,6 +306,20 @@
         </div>
     </div>
 
+<script>
+    function toggleChildEditRows(btn) {
+        const targetClass = btn.getAttribute('data-target');
+        const children = document.querySelectorAll('.' + targetClass);
+        const isExpanded = btn.textContent === '-';
+        if (isExpanded) {
+            btn.textContent = '+';
+            children.forEach(c => c.style.display = 'none');
+        } else {
+            btn.textContent = '-';
+            children.forEach(c => c.style.display = '');
+        }
+    }
+</script>
     <script src="{{ url_for('static', filename='edit-tabel.js') }}"></script>
 </body>
 </html>

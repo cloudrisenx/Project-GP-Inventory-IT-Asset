@@ -21,16 +21,18 @@
         }
     </style>
 </head>
-<body>
-    <div class="dashboard-container">
-        <div class="page-header animate-fade-in">
-            <a href="/settings" class="btn-back">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Kembali
-            </a>
-            <div class="page-title"><h2 style="font-family: 'Plus Jakarta Sans', sans-serif;">Database Supplier</h2></div>
-            <button onclick="addSupplier()" class="btn-primary" style="border-radius: 8px;">+ Tambah Supplier</button>
-        </div>
+<body class="with-dashboard">
+    {% set page_subtitle = 'Pengaturan' %}
+    {% set back_link = '/settings' %}
+    {% set back_text = 'Pengaturan' %}
+    {% set page_title = 'Database Supplier' %}
+    {% set page_desc = 'Kelola data vendor, toko, dan kontak service' %}
+    {% set show_header_actions = true %}
+    {% set action_btn_js = 'addSupplier()' %}
+    {% set action_btn_text = '+ Tambah Supplier' %}
+    {% set main_class = 'dashboard-container' %}
+    {% set main_style = 'padding-top: 20px;' %}
+    {% include 'header_layout.html' %}
 
         <div class="settings-card table-responsive animate-slide-up">
             <table class="data-table">
@@ -67,7 +69,7 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </main>
 
     <!-- MODAL POPUP FORM -->
     <div id="formModal" class="modal">

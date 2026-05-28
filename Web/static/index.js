@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function updateDBStatus() {
         try {
-            const response = await fetch('/api/db-check');
+            const response = await fetch(`${BASE_PATH}/api/db-check`);
             const data = await response.json();
             
             if (data.status === 'online') {

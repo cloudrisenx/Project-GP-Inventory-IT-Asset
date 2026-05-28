@@ -90,8 +90,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // 5. Kode Hotel
         const hotelCode = (hotelCodeInput && hotelCodeInput.value) ? hotelCodeInput.value : 'GPB';
         
-        // Format Akhir: DEP/CAT-MOD/LOC/YYYY-MM/HOTEL
-        const finalBarcode = `${deptCode}/${catCode}-${modelValue}/${locCode}/${dateStr}/${hotelCode}`.toUpperCase();
+        // Format Akhir: DEP/CAT-MOD/LOC/YYYY-MM/HOTEL-001
+        const finalBarcode = `${deptCode}/${catCode}-${modelValue}/${locCode}/${dateStr}/${hotelCode}-001`.toUpperCase();
         
         if (barcodeInput) {
             barcodeInput.value = finalBarcode;
@@ -183,4 +183,43 @@ document.addEventListener('DOMContentLoaded', function() {
     if(costInput) {
         costInput.addEventListener('blur', function() { if (this.value < 0) this.value = 0; });
     }
+
+    // Pastikan kategori tidak disabled saat form di-submit
+    const formLayout = document.querySelector('.modal-form-layout');
+    if (formLayout) {
+        formLayout.addEventListener('submit', function() {
+            if (catSelect) catSelect.disabled = false;
+        });
+    }
 });
+
+// FUNGSI UNTUK SEARCH DAN FILTER TABEL EDIT
+window.filterEditTable = function() {
+    const searchInput = document.getElementById('searchInput');
+    const deptFilter = document.getElementById('filterDept');
+    
+    if (!searchInput || !deptFilter) return;
+
+    const query = searchInput.value.toLowerCase();
+    const dept = deptFilter.value;
+    const rows = document.querySelectorAll('#edit-asset-table tbody tr.edit-row');
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const rowName = row.getAttribute('data-name') || '';
+        const rowBarcode = row.getAttribute('data-barcode') || '';
+        const rowModel = row.getAttribute('data-model') || '';
+        const rowDept = row.getAttribute('data-dept') || '';
+
+        const matchSearch = rowName.includes(query) || rowBarcode.includes(query) || rowModel.includes(query);
+        const matchDept = (dept === "" || rowDept === dept);
+
+        if (matchSearch && matchDept) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+};

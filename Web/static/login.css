@@ -1,26 +1,42 @@
 :root {
-    --bg-color: #f4f7fa;
+    /* Menggunakan variabel dari index.css untuk konsistensi */
+    --bg-color: #f5f5f7;
     --card-bg: #ffffff;
-    --text-main: #333333;
-    --text-muted: #777777;
-    --primary-color: #4361ee;
-    --primary-hover: #3a53d0;
-    --input-border: #e0e0e0;
-    --input-focus: #4361ee;
-    --error-bg: #ffebee;
-    --error-text: #c62828;
+    --text-main: #1d1d1f;
+    --text-muted: #86868b;
+    --bg-hover: #e8e8ed;
+    --primary-color: #2A6546;
+    --primary-hover: #3a8a5f;
+    --input-border: #e5e5ea;
+    --input-focus-shadow: 0 0 0 3px rgba(42, 101, 70, 0.2);
+    --error-bg: #fee2e2;
+    --error-text: #991b1b;
+    --error-border: #ffcdd2;
+    --success-bg: #dcfce7;
+    --success-text: #166534;
+    --success-border: #c8e6c9;
+    --btn-secondary-bg: #e0e0e0;
+    --btn-secondary-text: #333;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-color: #121212;
-        --card-bg: #1e1e1e;
-        --text-main: #f0f0f0;
-        --text-muted: #a0a0a0;
-        --input-border: #333333;
-        --error-bg: #3c1414;
-        --error-text: #ff8a80;
-    }
+[data-theme="dark"] {
+    --bg-color: #000000;
+    --card-bg: #1c1c1e;
+    --text-main: #f5f5f7;
+    --text-muted: #86868b;
+    --bg-hover: #2c2c2e;
+    --primary-color: #34D399;
+    --primary-hover: #6EE7B7;
+    --input-border: #38383a;
+    --input-focus-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+    --error-bg: rgba(239, 68, 68, 0.2);
+    --error-text: #f87171;
+    --error-border: rgba(248, 113, 113, 0.3);
+    --success-bg: rgba(52, 211, 153, 0.2);
+    --success-text: #34d399;
+    --success-border: rgba(52, 211, 153, 0.3);
+    --btn-secondary-bg: #333;
+    --btn-secondary-text: #f0f0f0;
 }
 
 * { 
@@ -35,7 +51,8 @@ body {
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    min-height: 100vh; 
+    min-height: 100vh;
+    transition: background-color 0.4s ease, color 0.4s ease;
     color: var(--text-main); 
 }
 
@@ -49,13 +66,20 @@ body {
     background-color: var(--card-bg); 
     padding: 40px 30px; 
     border-radius: 12px; 
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); 
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--input-border);
 }
 
 .login-header { text-align: center; margin-bottom: 30px; }
 .logo { max-width: 120px; margin-bottom: 15px; }
-.login-header h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
-.login-header p { font-size: 14px; color: var(--text-muted); }
+.login-header h2 { 
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.5rem; /* 24px */
+    font-weight: 700; 
+    letter-spacing: -0.02em;
+    margin-bottom: 8px; 
+}
+.login-header p { font-size: 1rem; color: var(--text-muted); }
 
 .input-group { margin-bottom: 20px; }
 .input-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
@@ -74,8 +98,8 @@ body {
 }
 .input-wrapper input:focus { 
     outline: none; 
-    border-color: var(--input-focus); 
-    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15); 
+    border-color: var(--primary-color); 
+    box-shadow: var(--input-focus-shadow); 
 }
 
 .toggle-password { 
@@ -105,6 +129,7 @@ body {
     transition: 0.3s; 
     margin-top: 10px; 
 }
+[data-theme="dark"] .btn-login { color: #111827; }
 .btn-login:hover { background-color: var(--primary-hover); }
 .btn-login:disabled { background-color: #a0a0a0; cursor: not-allowed; }
 
@@ -112,8 +137,8 @@ body {
 .btn-guest { 
     width: 100%; 
     padding: 12px; 
-    background-color: #e0e0e0; 
-    color: #333; 
+    background-color: var(--btn-secondary-bg); 
+    color: var(--btn-secondary-text); 
     border: none; 
     border-radius: 8px; 
     font-size: 16px; 
@@ -126,12 +151,7 @@ body {
     transition: 0.3s; 
     margin-top: 12px; 
 }
-.btn-guest:hover { background-color: #d5d5d5; }
-
-@media (prefers-color-scheme: dark) {
-    .btn-guest { background-color: #333; color: #f0f0f0; }
-    .btn-guest:hover { background-color: #444; }
-}
+.btn-guest:hover { background-color: var(--text-muted); }
 .btn-guest:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .alert { 
@@ -141,8 +161,68 @@ body {
     font-size: 14px; 
     display: flex; 
     align-items: center; 
-    gap: 10px; 
+    gap: 10px;
 }
-.alert-error { background-color: var(--error-bg); color: var(--error-text); border: 1px solid #ffcdd2; }
-.alert-success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.alert-error { background-color: var(--error-bg); color: var(--error-text); border: 1px solid var(--error-border); }
+.alert-success { background-color: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
 .login-footer { text-align: center; margin-top: 30px; font-size: 12px; color: var(--text-muted); }
+
+/* --- THEME TOGGLE BUTTON STYLES (DARI INDEX.CSS) --- */
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    border-radius: 50px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-theme {
+    background: transparent;
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+}
+.btn-theme:hover { background: var(--bg-hover); border-color: var(--primary-color); }
+
+/* --- NAVBAR STANDARDIZATION --- */
+.top-navbar {
+    background-color: var(--surface, var(--bg-card, #ffffff));
+    padding: 0 32px;
+    height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border, var(--border-color, #e5e5ea));
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo { background: var(--primary, var(--gp-green, #10b981)); color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; padding: 6px 12px; border-radius: 8px; font-size: 16px; transition: color 0.3s ease; }
+[data-theme="dark"] .brand-logo { color: #111827; }
+
+.brand-info { display: flex; flex-direction: column; }
+.brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-main, #1d1d1f); }
+.brand-subtitle { font-size: 11px; color: var(--text-muted, #86868b); font-family: 'Inter', sans-serif;}
+
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.btn-back {
+    text-decoration: none; color: var(--text-main, #1d1d1f); font-weight: 600; font-size: 13px;          
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;        
+    background-color: var(--surface-hover, var(--bg-hover, #f3f4f6)); border: 1px solid var(--border, var(--border-color, #e5e5ea)); border-radius: 50px; transition: all 0.3s ease;     
+}
+.btn-back:hover { background-color: var(--primary, var(--gp-green, #10b981)); border-color: var(--primary, var(--gp-green, #10b981)); color: #FFFFFF; }
+[data-theme="dark"] .btn-back:hover { color: #111827; }
+
+.btn-back svg { width: 16px; height: 16px; color: var(--text-muted, #86868b); transition: transform 0.2s ease, color 0.2s ease; }
+.btn-back:hover svg { color: #FFFFFF; transform: translateX(-2px); }
+[data-theme="dark"] .btn-back:hover svg { color: #111827; }
+/* --- END NAVBAR STANDARDIZATION --- */

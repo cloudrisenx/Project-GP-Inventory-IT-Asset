@@ -32,15 +32,15 @@
                 
                 <!-- Sembunyikan tombol Ganti Password untuk Guest -->
                 {% if current_user.role != 'guest' %}
-                <a href="{{ url_for('ganti_password') }}" class="btn-sm btn-secondary">Ganti Password</a>
+                <a href="{{ url_for('auth.ganti_password') }}" class="btn-sm btn-secondary">Ganti Password</a>
                 {% endif %}
                 
-                <a href="{{ url_for('logout') }}" class="btn-sm btn-delete">Logout</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn-sm btn-delete">Logout</a>
             </div>
         </div>
 
         <header class="main-header animate-fade-in">
-            <img src="/static/logogpbandungan.png" alt="Logo Griya Persada" class="logo-img" onerror="this.src='https://placehold.co/320x100?text=Griya+Persada'">
+            <img src="{{ url_for('static', filename='logogpbandungan.png') }}" alt="Logo Griya Persada" class="logo-img" onerror="this.src='https://placehold.co/320x100?text=Griya+Persada'">
             <div class="header-text">
                 <h1>Inventory <span class="text-accent">Asset</span></h1>
                 <p>IT Department - Sistem Manajemen Data</p>
@@ -68,14 +68,14 @@
         </section>
 
         <nav class="menu-grid">
-            <a href="/lihat-tabel" class="menu-item animate-slide-up" style="animation-delay: 0.3s;">
+            <a href="{{ url_for('assets.lihat_tabel') }}" class="menu-item animate-slide-up" style="animation-delay: 0.3s;">
                 <div class="icon">📊</div>
                 <span class="label">Lihat Tabel</span>
                 <span class="description">Lihat seluruh data asset IT</span>
             </a>
             
             {% if current_user.role in ['admin', 'user'] %}
-            <a href="/tambah-data" class="menu-item animate-slide-up" style="animation-delay: 0.4s;">
+            <a href="{{ url_for('assets.tambah_data') }}" class="menu-item animate-slide-up" style="animation-delay: 0.4s;">
                 <div class="icon">➕</div>
                 <span class="label">Tambah Data</span>
                 <span class="description">Input asset baru ke sistem</span>
@@ -83,7 +83,7 @@
             {% endif %}
             
             {% if current_user.role == 'admin' %}
-            <a href="/edit-tabel" class="menu-item animate-slide-up" style="animation-delay: 0.5s;">
+            <a href="{{ url_for('assets.edit_tabel') }}" class="menu-item animate-slide-up" style="animation-delay: 0.5s;">
                 <div class="icon">✏️</div>
                 <span class="label">Edit Tabel</span>
                 <span class="description">Ubah & Hapus informasi asset</span>
@@ -91,7 +91,7 @@
             {% endif %}
 
             {% if current_user.role in ['admin', 'user'] %}
-            <a href="/settings" class="menu-item animate-slide-up" style="animation-delay: 0.6s;">
+            <a href="{{ url_for('settings.settings_index') }}" class="menu-item animate-slide-up" style="animation-delay: 0.6s;">
                 <div class="icon">⚙️</div>
                 <span class="label">Pengaturan</span>
                 <span class="description">Konfigurasi & Manajemen</span>
@@ -103,7 +103,7 @@
             <div class="recent-box">
                 <div class="box-header">
                     <h4>Aktivitas Terakhir</h4>
-                    <a href="/lihat-tabel" class="view-all">Lihat Semua</a>
+                    <a href="{{ url_for('assets.lihat_tabel') }}" class="view-all">Lihat Semua</a>
                 </div>
                 <ul class="recent-list">
                     {% for item in recent_items %}
@@ -129,6 +129,10 @@
         </footer>
     </div>
 
+    <!-- Variabel Global untuk Javascript (PENTING UNTUK API / SUBPATH) -->
+    <script>
+        const BASE_PATH = '{{ request.script_root }}';
+    </script>
     <script src="{{ url_for('static', filename='index.js') }}"></script>
 </body>
 </html>

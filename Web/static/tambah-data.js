@@ -92,8 +92,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const hotelCodeInput = document.getElementById('hotelCodeInput');
         const hotelCode = (hotelCodeInput && hotelCodeInput.value) ? hotelCodeInput.value : 'GPB';
 
-        // Gabungkan menjadi: DEP/CAT-MOD/LOC/YYYY-MM/HOTEL
-        const finalBarcode = `${mainCode}/${subCode}-${modelValue}/${locCode}/${dateStr}/${hotelCode}`.toUpperCase();
+        // Gabungkan menjadi: DEP/CAT-MOD/LOC/YYYY-MM/HOTEL-001
+        const finalBarcode = `${mainCode}/${subCode}-${modelValue}/${locCode}/${dateStr}/${hotelCode}-001`.toUpperCase();
 
         if (barcodeInput) {
             barcodeInput.value = finalBarcode;

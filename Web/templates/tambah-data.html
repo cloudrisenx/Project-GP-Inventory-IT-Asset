@@ -63,33 +63,16 @@
         @media (max-width: 480px) { .modal-content { width: 100%; } }
     </style>
 </head>
-<body>
+<body class="with-form">
 
-    <!-- NAVBAR -->
-    <nav class="top-navbar">
-        <div class="nav-brand">
-            <span class="brand-logo">GP</span>
-            <div class="brand-info">
-                <span class="brand-title">Griya Persada</span>
-                <span class="brand-subtitle">Asset Management</span>
-            </div>
-        </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
-            <a href="/" class="btn-back">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Dasboard
-            </a>
-        </div>
-    </nav>
-
-    <main class="main-content">
-        <div class="page-header">
-            <h1>Registrasi Asset Baru</h1>
-            <p>Lengkapi formulir di bawah. Gunakan fitur Auto-TagID untuk standarisasi label.</p>
-        </div>
+    {# Panggil header terpusat #}
+    {% set page_subtitle = 'Tambah Data' %}
+    {% set page_title = 'Registrasi Asset Baru' %}
+    {% set page_desc = 'Lengkapi formulir di bawah untuk mendaftarkan asset baru.' %}
+    {% include 'header_layout.html' %}
 
         <div class="form-card">
-            <form id="assetForm" action="/simpan-data" method="POST" class="form-body">
+            <form id="assetForm" action="{{ url_for('assets.process_data') }}" method="POST" class="form-body">
                 
                 <!-- SECTION 1: IDENTITAS PRODUK -->
                 <div class="form-section">
@@ -338,7 +321,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             
-            fetch('/api/add-category', {
+            fetch("{{ url_for('api.api_add_category') }}", {
                 method: 'POST',
                 body: formData
             })
@@ -370,7 +353,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             
-            fetch('/api/add-location', {
+            fetch("{{ url_for('api.api_add_location') }}", {
                 method: 'POST',
                 body: formData
             })

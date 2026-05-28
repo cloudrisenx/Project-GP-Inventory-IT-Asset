@@ -14,20 +14,15 @@
         }
     </script>
 </head>
-<body>
-    <div class="dashboard-container">
-        
-        <!-- Header -->
-        <div class="page-header animate-fade-in">
-            <a href="/" class="btn-back">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Kembali ke Dashboard
-            </a>
-            <div class="page-title">
-                <h2 style="font-family: 'Plus Jakarta Sans', sans-serif;">Pengaturan Sistem</h2>
-            </div>
-            <div style="width: 80px;"></div> <!-- Spacer untuk menyeimbangkan layout -->
-        </div>
+<body class="with-dashboard">
+
+    {# Panggil header terpusat #}
+    {% set page_subtitle = 'Pengaturan' %}
+    {% set page_title = 'Pengaturan Sistem' %}
+    {% set page_desc = 'Konfigurasi database master & manajemen sistem.' %}
+    {% set main_class = 'dashboard-container' %}
+    {% set main_style = 'padding-top: 20px;' %}
+    {% include 'header_layout.html' %}
 
         <!-- Grid Menu Settings -->
         <div class="menu-grid">
@@ -75,6 +70,7 @@
         <footer class="main-footer">
             <p>Konfigurasi Database Master &bull; Sistem Inventory Asset IT</p>
         </footer>
-    </div>
+    </main>
+
 </body>
 </html>

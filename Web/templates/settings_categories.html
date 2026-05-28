@@ -64,16 +64,15 @@
         }
     </style>
 </head>
-<body>
-    <div class="dashboard-container">
-        <div class="page-header animate-fade-in">
-            <a href="/settings" class="btn-back">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Kembali
-            </a>
-            <div class="page-title"><h2 style="font-family: 'Plus Jakarta Sans', sans-serif;">Pengaturan Klasifikasi</h2></div>
-            <div style="width: 80px;"></div>
-        </div>
+<body class="with-dashboard">
+    {% set page_subtitle = 'Pengaturan' %}
+    {% set back_link = '/settings' %}
+    {% set back_text = 'Pengaturan' %}
+    {% set page_title = 'Pengaturan Klasifikasi' %}
+    {% set page_desc = 'Kelola departemen dan struktur kategori aset' %}
+    {% set main_class = 'dashboard-container' %}
+    {% set main_style = 'padding-top: 20px;' %}
+    {% include 'header_layout.html' %}
 
         <!-- NOTIFIKASI BERHASIL / GAGAL DIPERBAIKI -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -244,8 +243,7 @@
                 </div>
             </div>
             
-        </div>
-    </div>
+    </main>
 
     <script src="{{ url_for('static', filename='settings.js') }}"></script>
     <script>

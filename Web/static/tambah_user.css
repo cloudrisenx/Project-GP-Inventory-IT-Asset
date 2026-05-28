@@ -3,13 +3,28 @@
     --card-bg: #ffffff;
     --text-main: #333333;
     --border-color: #e0e0e0;
-    --primary: #4361ee;
+    --primary: #2A6546;
+    --primary-hover: #1e4a33;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-color: #121212; --card-bg: #1e1e1e; --text-main: #f0f0f0; --border-color: #333333;
+        --bg-color: #0B1121;
+        --card-bg: #1F2937;
+        --text-main: #F9FAFB;
+        --border-color: #374151;
+        --primary: #34D399;
+        --primary-hover: #10B981;
     }
+}
+
+[data-theme="dark"] {
+    --bg-color: #0B1121;
+    --card-bg: #1F2937;
+    --text-main: #F9FAFB;
+    --border-color: #374151;
+    --primary: #34D399;
+    --primary-hover: #10B981;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -30,9 +45,47 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
 .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--primary); }
 
 .btn-submit { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: 0.3s; }
-.btn-submit:hover { background-color: #3a53d0; }
+.btn-submit:hover { background-color: var(--primary-hover); }
 .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
 .alert-error { background-color: #ffebee; color: #c62828; }
 .alert-success { background-color: #e8f5e9; color: #2e7d32; }
+
+/* --- NAVBAR STANDARDIZATION --- */
+.top-navbar {
+    background-color: var(--surface, var(--bg-card, #ffffff));
+    padding: 0 32px;
+    height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border, var(--border-color, #e5e5ea));
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo { background: var(--primary, var(--gp-green, #10b981)); color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; padding: 6px 12px; border-radius: 8px; font-size: 16px; transition: color 0.3s ease; }
+[data-theme="dark"] .brand-logo { color: #111827; }
+
+.brand-info { display: flex; flex-direction: column; }
+.brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-main, #1d1d1f); }
+.brand-subtitle { font-size: 11px; color: var(--text-muted, #86868b); font-family: 'Inter', sans-serif;}
+
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.btn-back {
+    text-decoration: none; color: var(--text-main, #1d1d1f); font-weight: 600; font-size: 13px;          
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;        
+    background-color: var(--surface-hover, var(--bg-hover, #f3f4f6)); border: 1px solid var(--border, var(--border-color, #e5e5ea)); border-radius: 50px; transition: all 0.3s ease;     
+}
+.btn-back:hover { background-color: var(--primary, var(--gp-green, #10b981)); border-color: var(--primary, var(--gp-green, #10b981)); color: #FFFFFF; }
+[data-theme="dark"] .btn-back:hover { color: #111827; }
+
+.btn-back svg { width: 16px; height: 16px; color: var(--text-muted, #86868b); transition: transform 0.2s ease, color 0.2s ease; }
+.btn-back:hover svg { color: #FFFFFF; transform: translateX(-2px); }
+[data-theme="dark"] .btn-back:hover svg { color: #111827; }
+/* --- END NAVBAR STANDARDIZATION --- */

@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
 /* --- GENERATE QR LINK --- */
 function generateRichPayload(data) {
     if (!data) return "INVALID_DATA";
-    return `${window.location.origin}/scan/${data.barcode}`;
+    return `${window.location.origin}${BASE_PATH}/scan/${data.barcode}`;
 }
 
 /* --- LOGIKA INLINE FILTER BAR --- */
@@ -93,14 +93,14 @@ function applyInlineFilters() {
     const filterCat = document.getElementById('filter-cat').value;
     const filterVendor = document.getElementById('filter-vendor').value;
 
-    const rows = document.querySelectorAll('#asset-table tbody .asset-row');
+    const parentRows = document.querySelectorAll('#asset-table tbody .parent-row');
 
-    rows.forEach(row => {
+    parentRows.forEach(parent => {
         // Ambil atribut data dari tiap baris HTML (Tabel)
-        const rowDept = row.getAttribute('data-departemen') || '';
-        const rowLoc = row.getAttribute('data-lokasi') || '';
-        const rowCat = row.getAttribute('data-kategori') || '';
-        const rowVendor = row.getAttribute('data-vendor') || '';
+        const rowDept = parent.getAttribute('data-departemen') || '';
+        const rowLoc = parent.getAttribute('data-lokasi') || '';
+        const rowCat = parent.getAttribute('data-kategori') || '';
+        const rowVendor = parent.getAttribute('data-vendor') || '';
 
         // Cek kecocokan (jika dropdown kosong, berarti cocok semua)
         const matchDept = (filterDept === "" || rowDept === filterDept);
@@ -108,11 +108,20 @@ function applyInlineFilters() {
         const matchCat = (filterCat === "" || rowCat === filterCat);
         const matchVendor = (filterVendor === "" || rowVendor === filterVendor);
 
-        // Sembunyikan atau tampilkan baris
         if (matchDept && matchLoc && matchCat && matchVendor) {
-            row.style.display = '';
+            parent.style.display = '';
+            const btn = parent.querySelector('.btn-expand');
+            if (btn && btn.textContent === '-') {
+                const childClass = btn.getAttribute('data-target');
+                document.querySelectorAll('.' + childClass).forEach(c => c.style.display = '');
+            }
         } else {
-            row.style.display = 'none';
+            parent.style.display = 'none';
+            const btn = parent.querySelector('.btn-expand');
+            if (btn) {
+                const childClass = btn.getAttribute('data-target');
+                document.querySelectorAll('.' + childClass).forEach(c => c.style.display = 'none');
+            }
         }
     });
 }

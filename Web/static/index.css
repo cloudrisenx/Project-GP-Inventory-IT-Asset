@@ -1,30 +1,40 @@
-/* --- MODERN BRAND VARIABLES --- */
+/* --- MODERN BRAND VARIABLES (APPLE-INSPIRED) --- */
 :root {
     --gp-green: #2A6546;
     --gp-green-light: #3a8a5f;
     --gp-orange: #E77937;
     
-    /* Backgrounds & Colors (Light Mode Default) */
-    --bg-main: #F3F4F6; 
+    /* Backgrounds & Colors (Light Mode - Apple Style Solid) */
+    --bg-main: #f5f5f7; 
     --bg-card: #ffffff;
-    --bg-hover: #F9FAFB;
+    --bg-hover: #e8e8ed;
     
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
-    --border-color: #e5e7eb;
+    --text-main: #1d1d1f;
+    --text-muted: #86868b;
+    --border-color: #e5e5ea;
     
     /* Ikon Background */
-    --bg-icon-green: rgba(42, 101, 70, 0.1);
-    --bg-icon-blue: rgba(59, 130, 246, 0.1);
+    --bg-icon-green: #e9f2ec;
+    --bg-icon-blue: #e6f0fa;
     
-    /* Shadows */
-    --shadow-soft: 0 4px 20px rgba(0,0,0,0.03);
-    --shadow-hover: 0 12px 30px rgba(231, 121, 55, 0.15);
+    /* Status Colors (Light) */
+    --status-success-bg: #dcfce7;
+    --status-success-text: #166534;
+    --status-danger-bg: #fee2e2;
+    --status-danger-text: #991b1b;
+    --status-warning-bg: #fef3c7;
+    --status-warning-text: #92400e;
+
+    /* Shadows & Effects */
+    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04);
+    --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.08);
     
-    /* Efek Logo: Drop shadow natural untuk light mode */
-    --logo-filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    --logo-filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
     
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    --radius-lg: 24px;
+    --radius-md: 14px;
+    --radius-sm: 8px;
 }
 
 /* --- OVERRIDE UNTUK MODE GELAP (DARK MODE) --- */
@@ -33,87 +43,99 @@
     --gp-green-light: #6EE7B7;
     --gp-orange: #F97316;       
     
-    /* Backgrounds & Colors (Dark Mode) */
-    --bg-main: #111827;         
-    --bg-card: #1F2937;         
-    --bg-hover: #374151;        
+    /* Backgrounds & Colors (Dark Mode - Apple Style Solid) */
+    --bg-main: #000000;         
+    --bg-card: #1c1c1e;         
+    --bg-hover: #2c2c2e;        
     
-    --text-main: #F9FAFB;       
-    --text-muted: #9CA3AF;      
-    --border-color: #374151;
+    --text-main: #f5f5f7;       
+    --text-muted: #86868b;      
+    --border-color: #38383a;
     
-    /* Ikon Background */
-    --bg-icon-green: rgba(52, 211, 153, 0.15);
-    --bg-icon-blue: rgba(96, 165, 250, 0.15);
+    --bg-icon-green: #1a3b2b;
+    --bg-icon-blue: #132d4a;
     
-    /* Shadows */
-    --shadow-soft: 0 4px 20px rgba(0,0,0,0.3);
-    --shadow-hover: 0 10px 25px -5px rgba(52, 211, 153, 0.15);
+    /* Status Colors (Dark) */
+    --status-success-bg: rgba(52, 211, 153, 0.2);
+    --status-success-text: #34d399;
+    --status-danger-bg: rgba(239, 68, 68, 0.2);
+    --status-danger-text: #f87171;
+    --status-warning-bg: rgba(245, 158, 11, 0.2);
+    --status-warning-text: #fbbf24;
+
+    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.4);
+    --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.6);
     
-    /* Efek Logo: Drop shadow hitam tebal + glow hijau tipis agar transparan menyatu sempurna */
-    --logo-filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(52, 211, 153, 0.2));
+    --logo-filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
 }
 
 /* --- RESET & BASE --- */
 * {
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', 'Plus Jakarta Sans', sans-serif;
     background-color: var(--bg-main); 
     color: var(--text-main);
-    line-height: 1.6;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    line-height: 1.5;
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 .dashboard-container {
-    max-width: 1000px;
+    max-width: 1040px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 60px 20px;
 }
 
 /* --- ANIMATIONS --- */
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.animate-fade-in { animation: fadeInUp 0.8s ease forwards; }
-.animate-slide-up { opacity: 0; animation: fadeInUp 0.6s ease forwards; }
+.animate-fade-in { animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.animate-slide-up { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
 /* --- USER PANEL --- */
 .user-panel {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    padding: 12px 24px;
-    border-radius: 50px;
+    padding: 14px 28px;
+    border-radius: var(--radius-lg);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 50px;
+    margin-bottom: 60px;
     box-shadow: var(--shadow-soft);
     flex-wrap: wrap;
     gap: 15px;
     transition: var(--transition);
 }
 
-.user-info { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
+.user-info { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; font-weight: 500; }
 
 .badge-role {
     background: var(--bg-icon-green);
     color: var(--gp-green);
-    padding: 2px 8px;
-    border-radius: 12px;
+    padding: 4px 10px;
+    border-radius: var(--radius-md);
     font-size: 0.75rem;
     font-weight: 600;
     margin-left: 8px;
-    border: 1px solid rgba(52, 211, 153, 0.3);
+    border: 1px solid var(--border-color);
 }
 
-.user-actions { display: flex; gap: 10px; align-items: center; }
+.user-actions { display: flex; gap: 12px; align-items: center; }
+
+/* --- HEADER LAYOUT (NAVBAR) --- */
+.content-header { margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end; }
+.content-header h1 { margin: 0; font-size: 1.75rem; font-weight: 700; color: var(--text-main); letter-spacing: -0.03em; }
+.content-header p { margin: 8px 0 0 0; color: var(--text-muted); font-size: 1.1rem; font-weight: 400; }
 
 /* --- HEADER --- */
 .main-header {
@@ -136,8 +158,8 @@ body {
 
 .header-text h1 {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 2.2rem;
-    font-weight: 800;
+    font-size: 1.75rem;
+    font-weight: 700;
     color: var(--text-main);
     margin: 0;
     letter-spacing: -0.025em;
@@ -312,21 +334,6 @@ body {
     margin: 0;
     color: var(--text-main);
 }
-
-.btn-back {
-    text-decoration: none;
-    color: var(--text-muted);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: var(--transition);
-}
-
-.btn-back:hover {
-    color: var(--gp-green);
-}
-
 /* Tabel Data */
 .table-responsive {
     overflow-x: auto;
@@ -388,14 +395,15 @@ body {
 .btn-theme:hover { background: var(--bg-hover); border-color: var(--gp-green); }
 
 .btn-edit {
-    background-color: rgba(245, 158, 11, 0.15); /* Amber */
-    color: #FBBF24;
+    background-color: var(--status-warning-bg);
+    color: var(--status-warning-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-delete {
-    background-color: rgba(239, 68, 68, 0.1); /* Red */
-    color: #F87171;
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    background-color: var(--status-danger-bg);
+    color: var(--status-danger-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 .btn-delete:hover { background-color: #EF4444; color: #FFF; }
 
@@ -573,3 +581,41 @@ body {
         @media (max-width: 768px) {
             .grid-form { grid-template-columns: 1fr; gap: 10px; }
         }
+
+/* --- NAVBAR STANDARDIZATION --- */
+.top-navbar {
+    background-color: var(--surface, var(--bg-card, #ffffff));
+    padding: 0 32px;
+    height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border, var(--border-color, #e5e5ea));
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo { background: var(--primary, var(--gp-green, #10b981)); color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; padding: 6px 12px; border-radius: 8px; font-size: 16px; transition: color 0.3s ease; }
+[data-theme="dark"] .brand-logo { color: #111827; }
+
+.brand-info { display: flex; flex-direction: column; }
+.brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-main, #1d1d1f); }
+.brand-subtitle { font-size: 11px; color: var(--text-muted, #86868b); font-family: 'Inter', sans-serif;}
+
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.btn-back {
+    text-decoration: none; color: var(--text-main, #1d1d1f); font-weight: 600; font-size: 13px;          
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;        
+    background-color: var(--surface-hover, var(--bg-hover, #f3f4f6)); border: 1px solid var(--border, var(--border-color, #e5e5ea)); border-radius: 50px; transition: all 0.3s ease;     
+}
+.btn-back:hover { background-color: var(--primary, var(--gp-green, #10b981)); border-color: var(--primary, var(--gp-green, #10b981)); color: #FFFFFF; }
+[data-theme="dark"] .btn-back:hover { color: #111827; }
+
+.btn-back svg { width: 16px; height: 16px; color: var(--text-muted, #86868b); transition: transform 0.2s ease, color 0.2s ease; }
+.btn-back:hover svg { color: #FFFFFF; transform: translateX(-2px); }
+[data-theme="dark"] .btn-back:hover svg { color: #111827; }
+/* --- END NAVBAR STANDARDIZATION --- */

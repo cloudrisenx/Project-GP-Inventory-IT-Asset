@@ -26,47 +26,15 @@
 <body>
 
     <!-- DATA STORE UNTUK JAVASCRIPT -->
-    <div id="safe-json-data" style="display: none;">{{ assets_json }}</div>
+    <div id="safe-json-data" style="display: none;">{{ assets_json | safe }}</div>
 
-    <!-- NAVBAR -->
-    <nav class="top-navbar">
-        <div class="nav-brand">
-            <span class="brand-logo">GP</span>
-            <div class="brand-info">
-                <span class="brand-title">Inventory Asset</span>
-                <span class="brand-subtitle">IT Department</span>
-            </div>
-        </div>
-        <div class="nav-actions">
-            <button class="btn-action btn-hamburger" onclick="toggleSidebar()" style="margin-right: 8px; padding: 8px 12px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                <span style="display: none;">Menu</span>
-            </button>
-            <a href="/" class="btn-back">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Dashboard Utama
-            </a>
-        </div>
-    </nav>
-
-    <!-- KONTEN UTAMA -->
-    <main class="main-content">
-        <div class="content-header">
-            <div>
-                <h1>Database Asset IT</h1>
-                <p>Kelola dan pantau seluruh perangkat IT perusahaan</p>
-            </div>
-            <div class="header-actions">
-                <button class="btn-action" onclick="toggleFilterPanel()" title="Tampilkan/Sembunyikan Filter">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-                    <span>Filter</span>
-                </button>
-                <button class="btn-action btn-primary" onclick="toggleQR()" id="menu-toggle-qr">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
-                    <span>Tampilkan QR</span>
-                </button>
-            </div>
-        </div>
+    {# Panggil header terpusat (Mengatur Nav + Main + Judul Halaman sekaligus) #}
+    {% set page_subtitle = 'IT Department' %}
+    {% set page_title = 'Database Asset IT' %}
+    {% set page_desc = 'Kelola dan pantau seluruh perangkat IT perusahaan' %}
+    {% set show_header_actions = true %}
+    {% set show_filter_buttons = true %}
+    {% include 'header_layout.html' %}
 
         <div class="table-card">
             <!-- BARIS FILTER LANGSUNG (INLINE FILTER) -->
@@ -109,62 +77,133 @@
                         {% set ns = namespace(grand_total=0) %}
                         {% for group in assets|groupby('department_full') %}
                         {% set dept_total = namespace(value=0) %}
-                        {% for item in group.list %}
-                        {% set cost = item.current_value if item.current_value else 0 %}
-                        {% set dept_total.value = dept_total.value + cost %}
-                        {% set ns.grand_total = ns.grand_total + cost %}
-                        <tr class="asset-row" 
-                            data-kategori="{{ item.category_name if item.category_name else '' }}" 
-                            data-departemen="{{ item.department_full if item.department_full else '' }}" 
-                            data-lokasi="{{ item.lokasi_full if item.lokasi_full else '' }}"
-                            data-vendor="{{ item.supplier_name if item.supplier_name else '' }}">
                             
-                            <td class="col-no">{{ loop.index }}</td>
-                            <td>
-                                <div class="product-info">
-                                    <span class="product-name product-text">{{ item.product_name }}</span>
-                                    <span class="product-meta">SN: {{ item.serial_number if item.serial_number else '-' }}</span>
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <div class="product-info" style="align-items: center;">
-                                    <span class="category-pill">{{ item.category_name if item.category_name else 'Tanpa Kategori' }}</span>
-                                    <span class="product-meta" style="margin-top: 4px;">{{ item.department_full if item.department_full else '-' }}</span>
-                                </div>
-                            </td>
-                            <td class="td-barcode text-center">
-                                <div class="barcode-wrapper">
-                                    <span class="barcode-text">{{ item.barcode }}</span>
-                                    <div class="qr-box" onclick="zoomQR('{{ item.barcode }}')">
-                                        <div class="qr-render" data-code="{{ item.barcode }}"></div>
-                                        <span class="qr-label">ZOOM</span>
+                        {% for base_bc, items in group.list|groupby('base_barcode') %}
+                            {% set first_item = items[0] %}
+                            {% set group_qty = items|length %}
+                            {% set group_total_val = namespace(val=0) %}
+                            {% for i in items %}
+                                {% set group_total_val.val = group_total_val.val + (i.current_value if i.current_value else 0) %}
+                            {% endfor %}
+                            
+                            {% set dept_total.value = dept_total.value + group_total_val.val %}
+                            {% set ns.grand_total = ns.grand_total + group_total_val.val %}
+                            
+                            <tr class="asset-row parent-row" 
+                                data-kategori="{{ first_item.category_name if first_item.category_name else '' }}" 
+                                data-departemen="{{ first_item.department_full if first_item.department_full else '' }}" 
+                                data-lokasi="{{ first_item.lokasi_full if first_item.lokasi_full else '' }}"
+                                data-vendor="{{ first_item.supplier_name if first_item.supplier_name else '' }}">
+                                
+                                <td class="col-no">
+                                    {{ loop.index }}
+                                </td>
+                                <td>
+                                    <div class="product-info">
+                                        <span class="product-name product-text">{{ first_item.product_name }}</span>
+                                        <span class="product-meta">Model: {{ first_item.model if first_item.model else '-' }}</span>
                                     </div>
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <span class="row-price" data-price="{{ item.current_value }}">Rp {{ "{:,.0f}".format(item.current_value) }}</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="status-badge bg-neutral" style="font-size: 12px; padding: 6px 12px;">{{ item.qty if item.qty else '0' }}</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="status-badge 
-                                    {% if item.status_name == 'Aktif' or item.status_name == 'Baik' %} bg-success 
-                                    {% elif item.status_name == 'Rusak' %} bg-danger 
-                                    {% else %} bg-warning {% endif %}">
-                                    {{ item.status_name if item.status_name else '-' }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <div style="display: flex; gap: 8px; justify-content: center;">
-                                    <button class="btn-detail" onclick="openModal('{{ item.barcode }}')">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                        <span>Detail</span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                                <td class="text-center">
+                                    <div class="product-info" style="align-items: center;">
+                                        <span class="category-pill">{{ first_item.category_name if first_item.category_name else 'Tanpa Kategori' }}</span>
+                                        <span class="product-meta" style="margin-top: 4px;">{{ first_item.department_full if first_item.department_full else '-' }}</span>
+                                    </div>
+                                </td>
+                                <td class="td-barcode text-center">
+                                    <div class="barcode-wrapper">
+                                        <span class="barcode-text">{{ base_bc }}</span>
+                                        {% if group_qty > 1 %}
+                                        <small class="sn-text" style="display: block; margin-top: 4px; color: var(--gp-orange); font-weight: bold;">(Multiple Items)</small>
+                                        {% else %}
+                                        <div class="qr-box" onclick="zoomQR('{{ first_item.barcode }}')">
+                                            <div class="qr-render" data-code="{{ first_item.barcode }}"></div>
+                                            <span class="qr-label">ZOOM</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="row-price" data-price="{{ group_total_val.val }}">Rp {{ "{:,.0f}".format(group_total_val.val) }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge bg-neutral" style="font-size: 12px; padding: 6px 12px;">{{ group_qty }} Unit</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge 
+                                        {% if first_item.status_name == 'Aktif' or first_item.status_name == 'Baik' %} bg-success 
+                                        {% elif first_item.status_name == 'Rusak' %} bg-danger 
+                                        {% else %} bg-warning {% endif %}">
+                                        {{ first_item.status_name if first_item.status_name else '-' }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    {% if group_qty == 1 %}
+                                    <div style="display: flex; gap: 8px; justify-content: center;">
+                                        <button class="btn-detail" onclick="openModal('{{ first_item.barcode }}')">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span>Detail</span>
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                    <div style="display: flex; gap: 8px; justify-content: center;">
+                                        <button class="btn-detail btn-expand" data-target="child-{{ group.grouper|replace(' ','_') }}-{{ loop.index }}" onclick="toggleChildRowsTable(this)" style="padding: 4px 12px;">
+                                            <span>Detail Items (+)</span>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            
+                            <!-- CHILD ROWS -->
+                            {% if group_qty > 1 %}
+                                {% set outer_loop_index = loop.index %}
+                                {% for item in items %}
+                                <tr class="asset-row child-row child-{{ group.grouper|replace(' ','_') }}-{{ outer_loop_index }}" 
+                                    style="display: none; background-color: var(--bg-child);"
+                                    data-kategori="{{ item.category_name if item.category_name else '' }}" 
+                                    data-departemen="{{ item.department_full if item.department_full else '' }}" 
+                                    data-lokasi="{{ item.lokasi_full if item.lokasi_full else '' }}"
+                                    data-vendor="{{ item.supplier_name if item.supplier_name else '' }}">
+                                    
+                                    <td class="col-no" style="text-align: right; padding-right: 15px; color: var(--text-muted);">&bull;</td>
+                                    <td style="padding-left: 20px;">
+                                        <span style="font-size: 12px; color: var(--text-muted);">SN: {{ item.serial_number if item.serial_number else '-' }}</span>
+                                    </td>
+                                    <td class="text-center"></td>
+                                    <td class="td-barcode text-center">
+                                        <div class="barcode-wrapper">
+                                            <span class="barcode-text" style="font-size: 11px;">{{ item.barcode }}</span>
+                                            <div class="qr-box" onclick="zoomQR('{{ item.barcode }}')">
+                                                <div class="qr-render" data-code="{{ item.barcode }}"></div>
+                                                <span class="qr-label">ZOOM</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span style="font-size: 12px; color: var(--text-muted);">Rp {{ "{:,.0f}".format(item.current_value if item.current_value else 0) }}</span>
+                                    </td>
+                                    <td class="text-center"><span style="font-size: 11px; color: var(--text-muted);">1</span></td>
+                                    <td class="text-center">
+                                        <span class="status-badge 
+                                            {% if item.status_name == 'Aktif' or item.status_name == 'Baik' %} bg-success 
+                                            {% elif item.status_name == 'Rusak' %} bg-danger 
+                                            {% else %} bg-warning {% endif %}" style="transform: scale(0.85);">
+                                            {{ item.status_name if item.status_name else '-' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div style="display: flex; gap: 8px; justify-content: center;">
+                                            <button class="btn-detail" onclick="openModal('{{ item.barcode }}')" style="padding: 4px 8px; font-size: 10px;">
+                                                Detail
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% endif %}
                         {% endfor %}
+                        
                         <!-- BARIS SUBTOTAL PER DEPARTEMEN -->
                         <tr class="subtotal-row" data-departemen="{{ group.grouper if group.grouper else '' }}" style="background-color: var(--surface-hover); font-weight: 700; color: var(--text-main);">
                             <td colspan="4" style="text-align: right; padding-right: 24px;">Total {{ group.grouper if group.grouper else 'Lain-lain' }}:</td>
@@ -319,6 +358,11 @@
     <!-- CONTAINER TERSEMBUNYI UNTUK CETAK MASSAL -->
     <div id="bulk-print-container"></div>
 
+    <!-- Variabel Global untuk Javascript (PENTING UNTUK SUBPATH) -->
+    <script>
+        const BASE_PATH = '{{ request.script_root }}';
+    </script>
+
     <script src="{{ url_for('static', filename='tabel.js') }}"></script>
     <script>
         // --- SIDEBAR LOGIC ---
@@ -387,7 +431,7 @@
             const formData = new FormData();
             formData.append('action', 'all');
 
-            fetch('/api/regenerate-barcode', {
+            fetch("{{ url_for('api.regenerate_barcode') }}", {
                 method: 'POST',
                 body: formData
             })
@@ -417,7 +461,7 @@
             const formData = new FormData();
             formData.append('asset_id', assetId);
 
-            fetch('/api/regenerate-barcode', {
+            fetch("{{ url_for('api.regenerate_barcode') }}", {
                 method: 'POST',
                 body: formData
             })
@@ -516,6 +560,20 @@
             body.classList.toggle('totals-hidden');
             const isHidden = body.classList.contains('totals-hidden');
             localStorage.setItem('hideTotals', isHidden ? 'true' : 'false');
+        }
+
+        function toggleChildRowsTable(btn) {
+            const targetClass = btn.getAttribute('data-target');
+            const children = document.querySelectorAll('.' + targetClass);
+            const isExpanded = btn.textContent === '-';
+            
+            if (isExpanded) {
+                btn.textContent = '+';
+                children.forEach(c => c.style.display = 'none');
+            } else {
+                btn.textContent = '-';
+                children.forEach(c => c.style.display = '');
+            }
         }
     </script>
 </body>
