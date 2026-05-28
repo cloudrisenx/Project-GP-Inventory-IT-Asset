@@ -75,6 +75,12 @@ Aplikasi ini dilengkapi dengan fitur kelas premium untuk menjamin efisiensi kerj
 
 ## 📊 Visualisasi & Dokumentasi Arsitektur
 
+#### 🔄 Alur Kerja Sistem (Workflow)
+![Alur Kerja](Inventory.drawio.png)
+
+#### 🗄️ Database Schema (ERD)
+![ERD Database](ERD_inventory.drawio.png)
+
 Kami menyediakan diagram interaktif yang dapat Anda impor langsung ke **[draw.io](https://app.diagrams.net)** untuk memudahkan analisis sistem:
 
 *   **ERD Database (`Web/static/erd.xml`)**: Diagram relasional 6 tabel database (`assets`, `departments`, `categories`, `locations`, `asset_status`, `suppliers`) dengan tipe data, *Primary Key* (PK), *Foreign Key* (FK), dan garis relasi.
