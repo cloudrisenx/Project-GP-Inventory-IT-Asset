@@ -1,41 +1,37 @@
-# 🏢 IT Asset Management System - Griya Persada Hotel & Resort
+# 🏢 IT Asset Management - Griya Persada Hotel & Resort
 
 [![Python Version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue.svg)](https://www.python.org/)
 [![Flask Version](https://img.shields.io/badge/flask-3.0.2-green.svg)](https://flask.palletsprojects.com/)
 [![PostgreSQL](https://img.shields.io/badge/postgresql-12%20%7C%2013%20%7C%2014%20%7C%2015%20%7C%2016-blue.svg)](https://www.postgresql.org/)
-[![License](https://img.shields.io/badge/license-MIT-red.svg)](#)
 
-Sistem Manajemen Inventaris Aset IT Griya Persada Hotel & Resort adalah aplikasi berbasis web yang dirancang khusus untuk memantau, mendata, dan mengelola seluruh siklus hidup perangkat IT perusahaan secara profesional, terintegrasi, dan presisi.
+Aplikasi web internal untuk mencatat, melacak, dan mengelola siklus hidup aset inventaris IT di lingkungan Griya Persada Hotel & Resort.
 
 ---
 
 ## 🚀 Fitur Utama
 
-Aplikasi ini dilengkapi dengan fitur kelas premium untuk menjamin efisiensi kerja tim IT:
-
-*   🖥️ **Apple-Inspired Elegant UI**: Tampilan antarmuka modern yang bersih dan intuitif dengan dukungan font profesional *Plus Jakarta Sans* dan *JetBrains Mono*.
-*   🌓 **Symmetric Dark/Light Mode**: Sinkronisasi tema terintegrasi yang menyimpan preferensi pengguna secara lokal (`localStorage`) dan diwarisi secara otomatis di semua halaman.
-*   🏷️ **Smart Auto-Barcode (Tag ID)**: Pembuat nomor kode aset otomatis dengan format standardisasi industri: 
-    `MAINGROUP/SUBGROUP-INISIAL_MODEL/LOKASI/TANGGAL_BELI/KODE_HOTEL-001` (misal: `IT/LAP-T14/SRV/2026-05/GPB-001`).
-*   📉 **Excel-Style Depreciation Engine**: Kalkulasi penyusutan nilai aset otomatis dari harga beli asli hingga nilai sisa aset saat ini berdasarkan perkiraan usia produktif (menggunakan formula matematika *Excel DATEDIF Style*).
-*   🖨️ **Advanced QR Code Labeling**: 
-    - Render otomatis QR Code interaktif untuk setiap aset tunggal menggunakan `QRCode.js`.
-    - Dilengkapi fitur zoom gambar dan cetak satuan (*ZPL style label*).
-    - **Cetak Massal**: Memungkinkan cetak QR Code sekaligus berdasarkan rentang baris data dalam format grid siap print.
-*   🔄 **Database Barcode Regenerator**: Fitur sinkronisasi massal untuk memperbarui format barcode seluruh aset di database jika terjadi perubahan kode divisi/kategori terbaru.
+*   🖥️ **Desain UI Apple Style**: Antarmuka bersih, minimalis, dan responsif (nyaman diakses lewat desktop maupun HP).
+*   🌓 **Symmetric Dark/Light Mode**: Tema gelap/terang terintegrasi yang tersimpan otomatis di `localStorage` peramban.
+*   🏷️ **Generator Tag ID Otomatis**: Membuat format barcode aset secara seragam: `MAINGROUP/SUBGROUP-INISIAL_MODEL/LOKASI/TANGGAL_BELI/KODE_HOTEL-001` (contoh: `IT/LAP-T14/SRV/2026-05/GPB-001`).
+*   📉 **Kalkulasi Penyusutan (Depresiasi)**: Perhitungan nilai sisa aset secara real-time berdasarkan bulan berjalan dan estimasi umur manfaat barang.
+*   🖨️ **Sistem Labeling & QR Code**: 
+    - Menghasilkan QR Code dinamis untuk tiap aset secara instan via `QRCode.js`.
+    - Zoom QR Code dan cetak satuan.
+    - **Cetak Massal**: Memungkinkan pencetakan banyak label sekaligus berdasarkan pilihan baris tabel.
+*   🔄 **Regenerasi Barcode Database**: API internal untuk memperbarui format barcode seluruh aset di database secara massal jika terjadi pembaruan kode kategori/lokasi.
 
 ---
 
 ## 🛠️ Tech Stack & Dependencies
 
 *   **Backend**: Python (Flask Framework)
-*   **Database**: PostgreSQL (menggunakan *psycopg2-binary connection pooling* untuk menjamin stabilitas konkurensi data)
-*   **Frontend**: HTML5 (Jinja2 Templates), Vanilla CSS (Theme-Aware Variables), Vanilla JavaScript
-*   **Keamanan**: `Flask-Login` untuk manajemen sesi admin, enkripsi password `Werkzeug` (PBKDF2-SHA256).
+*   **Database**: PostgreSQL dengan psycopg2 connection pooling
+*   **Frontend**: Jinja2 Templates, Vanilla CSS (CSS Variables), Vanilla JavaScript
+*   **Autentikasi**: Flask-Login untuk pengelolaan sesi admin, enkripsi password menggunakan Werkzeug.
 
 ---
 
-## 📁 Struktur Direktori Proyek
+## 📁 Struktur Direktori
 
 ```text
 ├── Web/
@@ -46,29 +42,29 @@ Aplikasi ini dilengkapi dengan fitur kelas premium untuk menjamin efisiensi kerj
 │   │   └── reverse_proxy.py
 │   ├── models/            # Struktur representasi data (User)
 │   │   └── user.py
-│   ├── routes/            # Pengatur logika routing aplikasi (Blueprints)
-│   │   ├── auth.py        # Modul Autentikasi Admin & Manajemen User
-│   │   ├── assets.py      # Modul Utama Aset (CRUD, Depresiasi, Cetak)
-│   │   ├── settings.py    # Modul Pengaturan Kategori, Departemen, & Supplier
-│   │   ├── api.py         # RESTful API Endpoint (Autocomplete & Auto-barcode)
+│   ├── routes/            # Rute URL dan logika bisnis aplikasi
+│   │   ├── auth.py        # Autentikasi Admin & Manajemen Pengguna
+│   │   ├── assets.py      # CRUD Aset, Depresiasi, dan Cetak QR Code
+│   │   ├── settings.py    # Master Data (Departemen, Lokasi, Kategori, Supplier)
+│   │   ├── api.py         # Endpoint API pendukung (Autocomplete & Barcode Generator)
 │   │   └── scanner.py     # Modul pembaca barcode aset
-│   ├── services/          # Kelas utilitas pembantu encoder
+│   ├── services/          # Kelas helper (Custom JSON encoder)
 │   │   └── helper_service.py
-│   ├── static/            # Kumpulan berkas aset statis
+│   ├── static/            # Berkas statis pendukung frontend
 │   │   ├── alur_program.xml # Diagram Alur Program (Draw.io compatible)
 │   │   ├── erd.xml        # Diagram ERD Database (Draw.io compatible)
-│   │   ├── *.css          # Berkas gaya tampilan halaman (Theme-Aware)
-│   │   └── *.js           # Logika interaksi frontend
+│   │   ├── *.css          # Berkas CSS (index, tabel, tambah-data, login)
+│   │   └── *.js           # Interaksi JS frontend
 │   ├── templates/         # Berkas HTML template Jinja2
-│   ├── config.py          # File konfigurasi utama Flask
-│   ├── requirements.txt   # Daftar dependensi modul Python
-│   ├── wsgi.py            # Entrypoint WSGI Server Gunicorn
+│   ├── config.py          # Konfigurasi aplikasi Flask
+│   ├── requirements.txt   # Dependensi modul python
+│   ├── wsgi.py            # Entrypoint WSGI Server (Gunicorn)
 │   ├── app.py             # Inisialisasi awal server Flask
-│   └── .env               # Kredensial rahasia (Database & Secret Key)
-├── backup_inventory_db.sql # Cadangan database (format SQL)
-├── inventory_db.dump      # Cadangan database (format binary dump)
-├── README.md              # Dokumentasi proyek ini
-└── run.sh                 # Skrip deployment otomatis di Linux (Nginx/Gunicorn)
+│   └── .env               # File konfigurasi lokal (Database & Secret Key)
+├── backup_inventory_db.sql # Backup skema & data awal database (format SQL)
+├── inventory_db.dump      # Backup database (format binary dump)
+├── README.md              # Dokumentasi ini
+└── run.sh                 # Script deployment otomatis di Linux (Nginx/Gunicorn)
 ```
 
 ---
@@ -92,14 +88,14 @@ Kami menyediakan diagram interaktif yang dapat Anda impor langsung ke **[draw.io
 
 ## ⚙️ Panduan Instalasi & Konfigurasi
 
-Ikuti langkah-langkah berikut untuk menjalankan aplikasi di komputer lokal Anda:
+Ikuti langkah-langkah berikut untuk menjalankan aplikasi di lingkungan lokal Anda:
 
 ### 1. Prasyarat Sistem
-*   Python 3.8 ke atas terinstal di sistem Anda.
-*   PostgreSQL server aktif.
+*   Python versi 3.8 atau yang lebih baru.
+*   Server PostgreSQL yang aktif.
 
-### 2. Persiapan Folder & Virtual Environment
-Buka terminal/CMD Anda, lalu jalankan perintah berikut:
+### 2. Persiapan Virtual Environment
+Jalankan perintah berikut di terminal/CMD:
 ```bash
 # Masuk ke folder proyek
 cd "3. Project-IT-Asset"
@@ -114,28 +110,28 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-### 3. Install Dependensi Python
+### 3. Install Library Dependensi
 ```bash
 pip install -r Web/requirements.txt
 ```
 
 ### 4. Setup Database PostgreSQL
-1. Buat database baru di PostgreSQL Anda (misal nama database: `inventory_db`).
-2. Buat user admin PostgreSQL (misal user: `inventory_admin` dengan password `GPBandungan2025`).
-3. Restore database menggunakan salah satu dari berkas cadangan yang kami sediakan:
+1. Buat database baru di PostgreSQL Anda (contoh nama database: `inventory_db`).
+2. Buat user admin PostgreSQL (contoh user: `inventory_admin` dengan password `GPBandungan2025`).
+3. Impor data menggunakan salah satu berkas backup yang tersedia:
 
-**Menggunakan berkas `.sql` (Recommended):**
+**Melalui file `.sql` (Rekomendasi):**
 ```bash
 psql -U inventory_admin -d inventory_db -f backup_inventory_db.sql
 ```
 
-**Menggunakan berkas `.dump` (Alternatif):**
+**Melalui file `.dump` (Alternatif):**
 ```bash
 pg_restore -U inventory_admin -d inventory_db -v inventory_db.dump
 ```
 
-### 5. Konfigurasi Variabel Lingkungan (`.env`)
-Buat berkas bernama `.env` di dalam direktori `Web/` (`Web/.env`) dan sesuaikan kredensial koneksi database Anda:
+### 5. Buat File Konfigurasi Lokal (`.env`)
+Buat file baru bernama `.env` di dalam folder `Web/` (`Web/.env`) dan isi dengan kredensial database Anda:
 ```env
 SECRET_KEY=gp-bandungan-secret-key-123-production-change-me
 DB_HOST=127.0.0.1
@@ -152,11 +148,10 @@ DB_POOL_MAXCONN=20
 ```bash
 python Web/app.py
 ```
-Aplikasi akan berjalan secara lokal di `http://127.0.0.1:5000`.
+Aplikasi akan aktif secara lokal di `http://127.0.0.1:5000`.
 
-**Mode Produksi (Production - Linux Gunicorn):**
+**Mode Produksi (Linux dengan Gunicorn):**
 ```bash
-# Menjalankan skrip restart otomatis
 chmod +x run.sh
 ./run.sh
 ```
