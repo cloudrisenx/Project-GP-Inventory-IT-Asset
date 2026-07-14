@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: ./Web
+    container_name: gp_inventory_web
+    ports:
+      - "5000:5000"
+    environment:
+      # Sesuaikan environment variable ini dengan konfigurasi koneksi DB di kode Flask
+      - DB_HOST=db
+      - DB_NAME=inventory_db
+      - DB_USER=postgres
+      - DB_PASSWORD=password_postgres_kamu
+      - DB_PORT=5432
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    container_name: gp_inventory_db
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password_postgres_kamu
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Mapping file .sql untuk di-restore otomatis saat container pertama kali jalan
+      - ./backup_inventory_db.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+volumes:
+  pgdata:
